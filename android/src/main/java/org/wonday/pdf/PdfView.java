@@ -29,6 +29,7 @@ import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnErrorListener;
 import com.github.barteksc.pdfviewer.listener.OnRenderListener;
 import com.github.barteksc.pdfviewer.listener.OnTapListener;
+import com.github.barteksc.pdfviewer.listener.OnLongPressListener;
 import com.github.barteksc.pdfviewer.listener.OnDrawListener;
 import com.github.barteksc.pdfviewer.listener.OnPageScrollListener;
 import com.github.barteksc.pdfviewer.util.FitPolicy;
@@ -60,7 +61,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.shockwave.pdfium.util.SizeF;
 
-public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompleteListener,OnErrorListener,OnTapListener,OnDrawListener,OnPageScrollListener, LinkHandler {
+public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompleteListener,OnErrorListener,OnTapListener,OnLongPressListener,OnDrawListener,OnPageScrollListener, LinkHandler {
     private ThemedReactContext context;
     private int page = 1;               // start from 1
     private boolean horizontal = false;
@@ -207,6 +208,24 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     }
 
     @Override
+    public void onLongPress(MotionEvent e){
+
+        // maybe change by other instance, restore zoom setting
+        //Constants.Pinch.MINIMUM_ZOOM = this.minScale;
+        //Constants.Pinch.MAXIMUM_ZOOM = this.maxScale;
+
+        WritableMap event = Arguments.createMap();
+        event.putString("message", "pageSingleTap|"+page+"|"+e.getX()+"|"+e.getY()+"|longPress");
+
+        ReactContext reactContext = (ReactContext)this.getContext();
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                this.getId(),
+                "topChange",
+                event
+        );
+    }
+
+    @Override
     public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage){
         if (originalWidth == 0) {
             originalWidth = pageWidth;
@@ -291,6 +310,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
                 setTouchesEnabled(false);
             } else {
                 configurator.onTap(this);
+                configurator.onLongPress(this);
             }
 
             configurator.load();

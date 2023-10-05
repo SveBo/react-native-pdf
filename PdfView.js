@@ -220,9 +220,9 @@ export default class PdfView extends Component {
         }}/>
     );
 
-    _onItemSingleTap = (index, x, y) => {
+    _onItemSingleTap = (index, x, y, isLongPress) => {
 
-        this.props.onPageSingleTap(index + 1, x, y);
+        this.props.onPageSingleTap(index + 1, x, y, isLongPress);
 
     };
 

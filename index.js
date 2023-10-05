@@ -99,7 +99,7 @@ export default class Pdf extends Component {
         },
         onError: (error) => {
         },
-        onPageSingleTap: (page, x, y) => {
+        onPageSingleTap: (page, x, y, isLongPress) => {
         },
         onScaleChanged: (scale) => {
         },
@@ -377,7 +377,7 @@ export default class Pdf extends Component {
             } else if (message[0] === 'error') {
                 this._onError(new Error(message[1]));
             } else if (message[0] === 'pageSingleTap') {
-                this.props.onPageSingleTap && this.props.onPageSingleTap(Number(message[1]), Number(message[2]), Number(message[3]));
+                this.props.onPageSingleTap && this.props.onPageSingleTap(Number(message[1]), Number(message[2]), Number(message[3]), Boolean(message[4]));
             } else if (message[0] === 'scaleChanged') {
                 this.props.onScaleChanged && this.props.onScaleChanged(Number(message[1]));
             } else if (message[0] === 'linkPressed') {
