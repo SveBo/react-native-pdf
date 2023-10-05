@@ -48,6 +48,8 @@ UIView
 @property(nonatomic, strong) NSString *password;
 @property(nonatomic) BOOL singlePage;
 
+@property (nonatomic, assign) CGPoint startPoint;
+
 @property(nonatomic, copy) RCTBubblingEventBlock onChange;
 
 

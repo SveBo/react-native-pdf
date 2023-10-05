@@ -756,7 +756,6 @@ using namespace facebook::react;
 - (void)handleSingleTap:(UITapGestureRecognizer *)sender
 {
     //_pdfView.scaleFactor = _pdfView.minScaleFactor;
-
     CGPoint point = [sender locationInView:self];
     PDFPage *pdfPage = [_pdfView pageForPoint:point nearest:NO];
     if (pdfPage) {
@@ -786,8 +785,22 @@ using namespace facebook::react;
  *
  *
  */
-- (void)handleLongPress:(UILongPressGestureRecognizer *)sender{
-
+- (void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+        self.startPoint = [gestureRecognizer locationInView:self];
+    } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
+        CGPoint pressPoint = [gestureRecognizer locationInView:self];
+        CGFloat tolerance = 10.0;
+        
+        if (CGPointEqualToPoint(pressPoint, self.startPoint)) {
+            PDFPage *pdfPage = [_pdfView pageForPoint:pressPoint nearest:NO];
+            if (pdfPage) {
+                unsigned long page = [_pdfDocument indexForPage:pdfPage];
+                [self notifyOnChangeWithMessage:
+                [[NSString alloc] initWithString:[NSString stringWithFormat:@"pageSingleTap|%lu|%f|%f|%@", page+1, pressPoint.x, pressPoint.y, @"YES"]]];
+            }
+        }
+    }
 }
 
 /**
@@ -835,6 +848,7 @@ using namespace facebook::react;
 
     [self addGestureRecognizer:longPressRecognizer];
     _longPressRecognizer = longPressRecognizer;
+    longPressRecognizer.delegate = self;
 
 }
 
