@@ -306,7 +306,8 @@ const styles = StyleSheet.create({
 | onLoadComplete      | function(numberOfPages, path, {width, height}, tableContents) | null        | callback when pdf load completed, return total page count, pdf local/cache path, {width,height} and table of contents | ✔   | ✔ | ✔ but without tableContents | <3.0 |
 | onPageChanged       | function(page,numberOfPages)  | null        | callback when page changed ,return current page and total page count | ✔   | ✔ | ✔ | <3.0 |
 | onError       | function(error) | null        | callback when error happened | ✔   | ✔ | ✔ | <3.0 |
-| onPageSingleTap   | function(page, x, y, isLongPress)  | null        | callback when page was single tapped | ✔ | ✔ | ✔ | 3.0 |
+| onScroll          | function(x, y) | null | callback when page scrolling | ✔   | ✔ | ✔ | custom |
+| onPageSingleTap   | function(page, x, y, isLongPress)  | null        | callback when page was single tapped | ✔ | ✔ | ✔ | custom |
 | onScaleChanged    | function(scale) | null        | callback when scale page | ✔ | ✔ | ✔ | 3.0 |
 | onPressLink       | function(uri)   | null        | callback when link tapped | ✔ | ✔ | ✖ | 6.0.0 |
 

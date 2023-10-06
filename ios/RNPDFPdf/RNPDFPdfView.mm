@@ -181,6 +181,12 @@ using namespace facebook::react;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewDocumentChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewPageChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewScaleChangedNotification" object:nil];
+    for (UIView *subview in _pdfView.subviews) {
+        if ([subview isKindOfClass:[UIScrollView class]]) {
+            UIScrollView *scrollView = (UIScrollView *)subview;
+            [scrollView removeObserver:self forKeyPath:@"contentOffset"];
+        }
+    }
 
     // remove old recognizers before adding new ones
     [self removeGestureRecognizer:_doubleTapRecognizer];
@@ -551,6 +557,12 @@ using namespace facebook::react;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewDocumentChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewPageChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewScaleChangedNotification" object:nil];
+    for (UIView *subview in _pdfView.subviews) {
+        if ([subview isKindOfClass:[UIScrollView class]]) {
+            UIScrollView *scrollView = (UIScrollView *)subview;
+            [scrollView removeObserver:self forKeyPath:@"contentOffset"];
+        }
+    }
 
     _doubleTapRecognizer = nil;
     _singleTapRecognizer = nil;
@@ -849,7 +861,24 @@ using namespace facebook::react;
     [self addGestureRecognizer:longPressRecognizer];
     _longPressRecognizer = longPressRecognizer;
     longPressRecognizer.delegate = self;
+    
+    for (UIView *subview in _pdfView.subviews) {
+        if ([subview isKindOfClass:[UIScrollView class]]) {
+            UIScrollView *scrollView = (UIScrollView *)subview;
+            [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:nil];
+        }
+    }
 
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if ([keyPath isEqualToString:@"contentOffset"] && [object isKindOfClass:[UIScrollView class]]) {
+        UIScrollView *scrollView = (UIScrollView *)object;
+        CGPoint newContentOffset = [[change valueForKey:NSKeyValueChangeNewKey] CGPointValue];
+        
+        [self notifyOnChangeWithMessage:
+        [[NSString alloc] initWithString:[NSString stringWithFormat:@"onScroll|%f|%f", newContentOffset.x, newContentOffset.y]]];
+    }
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer

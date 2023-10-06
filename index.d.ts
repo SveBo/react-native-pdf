@@ -51,6 +51,7 @@ interface Props {
     onLoadComplete?: (numberOfPages: number, path: string, size: {height: number, width: number}, tableContents?: TableContent[]) => void,
     onPageChanged?: (page: number, numberOfPages: number) => void,
     onError?: (error: object) => void,
+    onScroll?: (x: number, y: number) => void,
     onPageSingleTap?: (page: number, x: number, y: number, isLongPress: boolean) => void,
     onScaleChanged?: (scale: number) => void,
     onPressLink?: (url: string) => void,
