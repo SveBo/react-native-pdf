@@ -32,6 +32,8 @@ import com.github.barteksc.pdfviewer.listener.OnTapListener;
 import com.github.barteksc.pdfviewer.listener.OnLongPressListener;
 import com.github.barteksc.pdfviewer.listener.OnDrawListener;
 import com.github.barteksc.pdfviewer.listener.OnPageScrollListener;
+import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+import com.github.barteksc.pdfviewer.scroll.ScrollHandle;
 import com.github.barteksc.pdfviewer.util.FitPolicy;
 import com.github.barteksc.pdfviewer.util.Constants;
 import com.github.barteksc.pdfviewer.link.LinkHandler;
@@ -183,6 +185,15 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         Constants.Pinch.MINIMUM_ZOOM = this.minScale;
         Constants.Pinch.MAXIMUM_ZOOM = this.maxScale;
 
+        WritableMap event = Arguments.createMap();
+        event.putString("message", "onScroll|"+ String.valueOf(this.getCurrentXOffset()) +"|"+  String.valueOf(this.getCurrentYOffset()));
+
+        ReactContext reactContext = (ReactContext)this.getContext();
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                this.getId(),
+                "topChange",
+                event
+        );
     }
 
     @Override

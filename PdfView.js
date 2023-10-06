@@ -323,6 +323,7 @@ export default class PdfView extends Component {
     });
 
     _onScroll = (e) => {
+        console.log(e.nativeEvent.contentOffset)
         this.setState({ contentOffset: e.nativeEvent.contentOffset, newContentOffset: e.nativeEvent.contentOffset });
     };
 
