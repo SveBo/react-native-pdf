@@ -135,6 +135,9 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             super.onSizeChanged(w, h, this.oldW, this.oldH);
             this.oldW = w;
             this.oldH = h;
+            if(w != oldw || h != oldh) {
+                originalWidth = 0;
+            }
         }
     }
 
