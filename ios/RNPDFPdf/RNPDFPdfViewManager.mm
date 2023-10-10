@@ -12,7 +12,9 @@
 #import "RNPDFPdfView.h"
 
 
-@implementation RNPDFPdfViewManager
+@implementation RNPDFPdfViewManager {
+    RNPDFPdfView *_pdfViewInstance;
+}
 
 RCT_EXPORT_MODULE()
 
@@ -20,7 +22,8 @@ RCT_EXPORT_MODULE()
 {
     if([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] == NSOrderedDescending
        || [[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] == NSOrderedSame) {
-        return [[RNPDFPdfView alloc] initWithBridge:self.bridge];
+        _pdfViewInstance = [[RNPDFPdfView alloc] initWithBridge:self.bridge];
+        return _pdfViewInstance;
     } else {
         return NULL;
     }
@@ -43,6 +46,15 @@ RCT_EXPORT_VIEW_PROPERTY(spacing, int);
 RCT_EXPORT_VIEW_PROPERTY(password, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onChange, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(singlePage, BOOL);
+
+RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y)
+{
+    if (_pdfViewInstance) {
+        [_pdfViewInstance moveToNative:x y:y];
+    } else {
+        NSLog(@"RNPDFPdfView instance is not available.");
+    }
+}
 
 RCT_EXPORT_METHOD(supportPDFKit:(RCTResponseSenderBlock)callback)
 {

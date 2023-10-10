@@ -283,11 +283,31 @@ using namespace facebook::react;
     [self bindTap];
 }
 
+
+- (void)moveToNative:(float)x y:(float)y
+{
+    __weak typeof(self) weakSelf = self;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        typeof(self) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+
+        for (UIView *subview in strongSelf->_pdfView.subviews) {
+            if ([subview isKindOfClass:[UIScrollView class]]) {
+                UIScrollView *scrollView = (UIScrollView *)subview;
+                CGPoint contentOffset = CGPointMake(x, y);
+                [scrollView setContentOffset:contentOffset animated:FALSE];
+            }
+        }
+    });
+}
+
 - (void)onOrientationChanged:(NSNotification *)noti
 {
     float min = self->_pdfView.minScaleFactor/self->_fixScaleFactor;
     float max = self->_pdfView.maxScaleFactor/self->_fixScaleFactor;
-    float mid = (max - min) / 2 + min;
     float scale = min;
 
     CGFloat newScale = scale * self->_fixScaleFactor;
@@ -323,9 +343,9 @@ using namespace facebook::react;
 }
 
 - (void)loadCompelete {
-    __weak typeof(self) weakSelf = self; // Создаем слабую ссылку на self
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf; // Создаем сильную ссылку на weakSelf
+        __strong typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf && strongSelf->_pdfDocument) {
             unsigned long numberOfPages = strongSelf->_pdfDocument.pageCount;
             PDFPage *page = [strongSelf->_pdfDocument pageAtIndex:strongSelf->_pdfDocument.pageCount - 1];
@@ -920,7 +940,6 @@ using namespace facebook::react;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if ([keyPath isEqualToString:@"contentOffset"] && [object isKindOfClass:[UIScrollView class]]) {
-        UIScrollView *scrollView = (UIScrollView *)object;
         CGPoint newContentOffset = [[change valueForKey:NSKeyValueChangeNewKey] CGPointValue];
         
         [self notifyOnChangeWithMessage:

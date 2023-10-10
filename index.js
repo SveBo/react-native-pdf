@@ -24,6 +24,8 @@ import ReactNativeBlobUtil from 'react-native-blob-util'
 import { ViewPropTypes } from 'deprecated-react-native-prop-types';
 const SHA1 = require('crypto-js/sha1');
 import PdfView from './PdfView';
+import { NativeModules } from 'react-native';
+const { RNPDFPdfViewManager } = NativeModules;
 
 export default class Pdf extends Component {
 
@@ -362,28 +364,17 @@ export default class Pdf extends Component {
     }
 
     moveTo(x, y) {
-
-        if (this._root) {
-            PdfViewCommands.moveToNative(
-                this._root,
-                x,
-                y,
-            );
+        if (!!global?.nativeFabricUIManager) {
+            if (this._root) {
+                PdfViewCommands.moveToNative(
+                    this._root,
+                    x,
+                    y,
+                );
+            }
+        } else {
+            RNPDFPdfViewManager.moveToNative(x, y)
         }
-        // console.log(global?.nativeFabricUIManager)
-        // if (!!global?.nativeFabricUIManager) {
-        //     if (this._root) {
-        //         PdfViewCommands.scrollTo(
-        //             this._root,
-        //             x,
-        //             y,
-        //         );
-        //     }
-        // } else {
-        //     this.setNativeProps({
-        //         coords: [x, y]
-        //     });
-        // }
     }
 
     _onChange = (event) => {
