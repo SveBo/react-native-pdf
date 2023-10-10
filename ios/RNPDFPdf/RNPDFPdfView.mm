@@ -181,6 +181,8 @@ using namespace facebook::react;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewDocumentChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewPageChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewScaleChangedNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+    
     for (UIView *subview in _pdfView.subviews) {
         if ([subview isKindOfClass:[UIScrollView class]]) {
             UIScrollView *scrollView = (UIScrollView *)subview;
@@ -272,12 +274,67 @@ using namespace facebook::react;
     [center addObserver:self selector:@selector(onDocumentChanged:) name:PDFViewDocumentChangedNotification object:_pdfView];
     [center addObserver:self selector:@selector(onPageChanged:) name:PDFViewPageChangedNotification object:_pdfView];
     [center addObserver:self selector:@selector(onScaleChanged:) name:PDFViewScaleChangedNotification object:_pdfView];
+    [center addObserver:self selector:@selector(onOrientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
     [[_pdfView document] setDelegate: self];
     [_pdfView setDelegate: self];
 
 
     [self bindTap];
+}
+
+- (void)onOrientationChanged:(NSNotification *)noti
+{
+    float min = self->_pdfView.minScaleFactor/self->_fixScaleFactor;
+    float max = self->_pdfView.maxScaleFactor/self->_fixScaleFactor;
+    float mid = (max - min) / 2 + min;
+    float scale = min;
+
+    CGFloat newScale = scale * self->_fixScaleFactor;
+    CGPoint tapPoint = CGPointMake(0.0, 0.0);
+
+    PDFPage *pageRef = self->_pdfView.currentPage;
+    tapPoint = [self->_pdfView convertPoint:tapPoint toPage:pageRef];
+
+    CGRect tempZoomRect = CGRectZero;
+    tempZoomRect.size.width = self->_pdfView.frame.size.width;
+    tempZoomRect.size.height = 1;
+    tempZoomRect.origin = tapPoint;
+
+    
+    [self->_pdfView setScaleFactor:newScale];
+
+    [self->_pdfView goToRect:tempZoomRect onPage:pageRef];
+    CGPoint defZoomOrigin = [self->_pdfView convertPoint:tempZoomRect.origin fromPage:pageRef];
+    defZoomOrigin.x = defZoomOrigin.x - self->_pdfView.frame.size.width / 2;
+    defZoomOrigin.y = defZoomOrigin.y - self->_pdfView.frame.size.height / 2;
+    defZoomOrigin = [self->_pdfView convertPoint:defZoomOrigin toPage:pageRef];
+    CGRect defZoomRect =  CGRectOffset(
+        tempZoomRect,
+        defZoomOrigin.x - tempZoomRect.origin.x,
+        defZoomOrigin.y - tempZoomRect.origin.y
+    );
+    [self->_pdfView goToRect:defZoomRect onPage:pageRef];
+
+    [self setNeedsDisplay];
+    [self onScaleChanged:Nil];
+    
+    [self loadCompelete];
+}
+
+- (void)loadCompelete {
+    __weak typeof(self) weakSelf = self; // Создаем слабую ссылку на self
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf; // Создаем сильную ссылку на weakSelf
+        if (strongSelf && strongSelf->_pdfDocument) {
+            unsigned long numberOfPages = strongSelf->_pdfDocument.pageCount;
+            PDFPage *page = [strongSelf->_pdfDocument pageAtIndex:strongSelf->_pdfDocument.pageCount - 1];
+            CGSize pageSize = [strongSelf->_pdfView rowSizeForPage:page];
+            NSString *jsonString = [strongSelf getTableContents];
+
+            [strongSelf notifyOnChangeWithMessage:[[NSString alloc] initWithString:[NSString stringWithFormat:@"loadComplete|%lu|%f|%f|%@", numberOfPages, pageSize.width / strongSelf->_scale, pageSize.height / strongSelf->_scale, jsonString]]];
+        }
+    });
 }
 
 - (void)PDFViewWillClickOnLink:(PDFView *)sender withURL:(NSURL *)url
@@ -557,6 +614,7 @@ using namespace facebook::react;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewDocumentChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewPageChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewScaleChangedNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
     for (UIView *subview in _pdfView.subviews) {
         if ([subview isKindOfClass:[UIScrollView class]]) {
             UIScrollView *scrollView = (UIScrollView *)subview;
@@ -573,18 +631,7 @@ using namespace facebook::react;
 #pragma mark notification process
 - (void)onDocumentChanged:(NSNotification *)noti
 {
-
-    if (_pdfDocument) {
-
-        unsigned long numberOfPages = _pdfDocument.pageCount;
-        PDFPage *page = [_pdfDocument pageAtIndex:_pdfDocument.pageCount-1];
-        CGSize pageSize = [_pdfView rowSizeForPage:page];
-        NSString *jsonString = [self getTableContents];
-
-        [self notifyOnChangeWithMessage:
-         [[NSString alloc] initWithString:[NSString stringWithFormat:@"loadComplete|%lu|%f|%f|%@", numberOfPages, pageSize.width, pageSize.height,jsonString]]];
-    }
-
+    [self loadCompelete];
 }
 
 -(NSString *) getTableContents
