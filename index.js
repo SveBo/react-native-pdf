@@ -364,7 +364,7 @@ export default class Pdf extends Component {
     }
 
     moveTo(x, y) {
-        if (!!global?.nativeFabricUIManager) {
+        if (!!global?.nativeFabricUIManager || Platform.OS === 'android') {
             if (this._root) {
                 PdfViewCommands.moveToNative(
                     this._root,
