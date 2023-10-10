@@ -12,6 +12,14 @@ A react native PDF view component (cross-platform support)
 * support password protected pdf
 * jump to a specific page in the pdf
 
+### Changes in this fork
+#### Events
+- onScroll - function(x, y)
+- onPageSingleTap - function(page, x, y, isLongPress)
+
+#### Methods
+- moveTo - function(x, y)
+
 ### Supported versions
 We use [`react-native-blob-util`](https://github.com/RonRadtke/react-native-blob-util) to handle file system access in this package,
 So you should install react-native-pdf and react-native-blob-util
@@ -306,8 +314,8 @@ const styles = StyleSheet.create({
 | onLoadComplete      | function(numberOfPages, path, {width, height}, tableContents) | null        | callback when pdf load completed, return total page count, pdf local/cache path, {width,height} and table of contents | ✔   | ✔ | ✔ but without tableContents | <3.0 |
 | onPageChanged       | function(page,numberOfPages)  | null        | callback when page changed ,return current page and total page count | ✔   | ✔ | ✔ | <3.0 |
 | onError       | function(error) | null        | callback when error happened | ✔   | ✔ | ✔ | <3.0 |
-| onScroll          | function(x, y) | null | callback when page scrolling | ✔   | ✔ | ✔ | custom |
-| onPageSingleTap   | function(page, x, y, isLongPress)  | null        | callback when page was single tapped | ✔ | ✔ | ✔ | custom |
+| onScroll          | function(x, y) | null | callback when page scrolling | ✔   | ✔ | ✖ | custom |
+| onPageSingleTap   | function(page, x, y, isLongPress)  | null        | callback when page was single tapped | ✔ | ✔ | ✖ | custom |
 | onScaleChanged    | function(scale) | null        | callback when scale page | ✔ | ✔ | ✔ | 3.0 |
 | onPressLink       | function(uri)   | null        | callback when link tapped | ✔ | ✔ | ✖ | 6.0.0 |
 
@@ -339,6 +347,7 @@ const styles = StyleSheet.create({
 \*) requires building React Native from source with [this patch](https://github.com/facebook/react-native/pull/31789)
 ### Methods
 * [setPage](#setPage)
+* [moveTo](#moveTo)
 
 Methods operate on a ref to the PDF element. You can get a ref with the following code:
 ```
@@ -359,4 +368,12 @@ Set the current page of the PDF component. pageNumber is a positive integer. If 
 Example:
 ```
 this.pdf.setPage(42); // Display the answer to the Ultimate Question of Life, the Universe, and Everything
+```
+
+#### moveTo()
+`moveTo(x, y)`
+
+Example:
+```
+this.pdf.moveTo(0, 0);
 ```

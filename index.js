@@ -361,6 +361,31 @@ export default class Pdf extends Component {
 
     }
 
+    moveTo(x, y) {
+
+        if (this._root) {
+            PdfViewCommands.moveToNative(
+                this._root,
+                x,
+                y,
+            );
+        }
+        // console.log(global?.nativeFabricUIManager)
+        // if (!!global?.nativeFabricUIManager) {
+        //     if (this._root) {
+        //         PdfViewCommands.scrollTo(
+        //             this._root,
+        //             x,
+        //             y,
+        //         );
+        //     }
+        // } else {
+        //     this.setNativeProps({
+        //         coords: [x, y]
+        //     });
+        // }
+    }
+
     _onChange = (event) => {
 
         let message = event.nativeEvent.message.split('|');

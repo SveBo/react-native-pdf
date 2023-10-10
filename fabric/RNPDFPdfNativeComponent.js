@@ -37,10 +37,15 @@
     viewRef: React.ElementRef<ComponentType>,
     page: Int32,
   ) => void;
+  +moveToNative: (
+    viewRef: React.ElementRef<ComponentType>,
+    x: Double,
+    y: Double,
+  ) => void;
 }
 
 export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['setNativePage'],
+  supportedCommands: ['setNativePage', 'moveToNative'],
 });
 
  export default codegenNativeComponent<NativeProps>('RNPDFPdfView');

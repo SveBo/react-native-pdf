@@ -152,12 +152,26 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
     }
 
     @Override
+    public void moveToNative(PdfView view, double x, double y) {
+        float xf = (float) x;
+        float yf = (float) y;
+        pdfView.zoomTo(pdfView.getMinZoom());
+        pdfView.moveTo(xf, yf);
+        pdfView.loadPages();
+    }
+
+    @Override
     public void receiveCommand(@NonNull PdfView root, String commandId, @androidx.annotation.Nullable ReadableArray args) {
         Assertions.assertNotNull(root);
         if ("setNativePage".equals(commandId)) {
             Assertions.assertNotNull(args);
             assert args != null;
             setNativePage(root, args.getInt(0));
+        }
+        else if ("moveToNative".equals(commandId)) {
+            Assertions.assertNotNull(args);
+            assert args != null;
+            moveToNative(root, args.getDouble(0), args.getDouble(1));
         }
     }
 

@@ -81,6 +81,9 @@ public class RNPDFPdfViewManagerDelegate<T extends View, U extends BaseViewManag
       case "setNativePage":
         mViewManager.setNativePage(view, args.getInt(0));
         break;
+      case "moveToNative":
+        mViewManager.moveToNative(view, args.getDouble(0), args.getDouble(1));
+        break;
     }
   }
 }

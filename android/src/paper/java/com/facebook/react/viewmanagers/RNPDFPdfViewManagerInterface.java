@@ -30,4 +30,5 @@ public interface RNPDFPdfViewManagerInterface<T extends View> {
   void setPassword(T view, @Nullable String value);
   void setSinglePage(T view, boolean value);
   void setNativePage(T view, int page);
+  void moveToNative(T view, double x, double y);
 }

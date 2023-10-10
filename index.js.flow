@@ -61,5 +61,6 @@ export type Props = {
 };
 
 declare export default class Pdf extends Component<Props> {
+  moveTo: (x: number, y: number) => void;
   setPage: (pageNumber: number) => void;
 }
