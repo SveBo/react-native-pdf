@@ -182,6 +182,7 @@ using namespace facebook::react;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewPageChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewScaleChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewSelectionChangedNotification" object:nil];
     
     for (UIView *subview in _pdfView.subviews) {
         if ([subview isKindOfClass:[UIScrollView class]]) {
@@ -274,6 +275,7 @@ using namespace facebook::react;
     [center addObserver:self selector:@selector(onDocumentChanged:) name:PDFViewDocumentChangedNotification object:_pdfView];
     [center addObserver:self selector:@selector(onPageChanged:) name:PDFViewPageChangedNotification object:_pdfView];
     [center addObserver:self selector:@selector(onScaleChanged:) name:PDFViewScaleChangedNotification object:_pdfView];
+    [center addObserver:self selector:@selector(onSelectionChanged:) name:PDFViewSelectionChangedNotification object:_pdfView];
     [center addObserver:self selector:@selector(onOrientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
 
     [[_pdfView document] setDelegate: self];
@@ -283,6 +285,11 @@ using namespace facebook::react;
     [self bindTap];
 }
 
+- (void)onSelectionChanged:(NSNotification *)noti {
+    if(_pdfView.currentSelection){
+        [_pdfView setCurrentSelection: nil];
+    }
+}
 
 - (void)moveToNative:(float)x y:(float)y
 {
@@ -635,6 +642,7 @@ using namespace facebook::react;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewPageChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewScaleChangedNotification" object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UIDeviceOrientationDidChangeNotification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"PDFViewSelectionChangedNotification" object:nil];
     for (UIView *subview in _pdfView.subviews) {
         if ([subview isKindOfClass:[UIScrollView class]]) {
             UIScrollView *scrollView = (UIScrollView *)subview;
