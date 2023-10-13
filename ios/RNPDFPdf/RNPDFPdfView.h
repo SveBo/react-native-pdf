@@ -53,7 +53,7 @@ UIView
 @property(nonatomic, copy) RCTBubblingEventBlock onChange;
 
 - (void)moveToNative:(float)x y:(float)y;
-
+- (void)resetZoom;
 
 @end
 

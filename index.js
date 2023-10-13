@@ -363,6 +363,16 @@ export default class Pdf extends Component {
 
     }
 
+    resetZoom() {
+        if (!!global?.nativeFabricUIManager || Platform.OS === 'android') {
+            if (this._root) {
+                PdfViewCommands.resetZoom(this._root);
+            }
+        } else {
+            RNPDFPdfViewManager.resetZoom()
+        }
+    }
+
     moveTo(x, y) {
         if (!!global?.nativeFabricUIManager || Platform.OS === 'android') {
             if (this._root) {

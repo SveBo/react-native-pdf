@@ -56,6 +56,15 @@ RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y)
     }
 }
 
+RCT_EXPORT_METHOD(resetZoom)
+{
+    if (_pdfViewInstance) {
+        [_pdfViewInstance resetZoom];
+    } else {
+        NSLog(@"RNPDFPdfView instance is not available.");
+    }
+}
+
 RCT_EXPORT_METHOD(supportPDFKit:(RCTResponseSenderBlock)callback)
 {
     if([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] == NSOrderedDescending

@@ -42,10 +42,13 @@
     x: Double,
     y: Double,
   ) => void;
+  +resetZoom: (
+    viewRef: React.ElementRef<ComponentType>,
+  ) => void;
 }
 
 export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['setNativePage', 'moveToNative'],
+  supportedCommands: ['setNativePage', 'moveToNative', 'resetZoom'],
 });
 
  export default codegenNativeComponent<NativeProps>('RNPDFPdfView');

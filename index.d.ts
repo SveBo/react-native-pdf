@@ -59,6 +59,7 @@ interface Props {
 
 declare class Pdf extends React.Component<Props, any> {
     moveTo: (x: number, y: number) => void;
+    resetZoom: () => void;
     setPage: (pageNumber: number) => void;
 }
 

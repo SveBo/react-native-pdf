@@ -19,6 +19,7 @@ A react native PDF view component (cross-platform support)
 
 #### Methods
 - moveTo - function(x, y)
+- resetScroll - function()
 
 ### Supported versions
 We use [`react-native-blob-util`](https://github.com/RonRadtke/react-native-blob-util) to handle file system access in this package,
@@ -348,6 +349,7 @@ const styles = StyleSheet.create({
 ### Methods
 * [setPage](#setPage)
 * [moveTo](#moveTo)
+* [resetScroll](#resetScroll)
 
 Methods operate on a ref to the PDF element. You can get a ref with the following code:
 ```
@@ -376,4 +378,12 @@ this.pdf.setPage(42); // Display the answer to the Ultimate Question of Life, th
 Example:
 ```
 this.pdf.moveTo(0, 0);
+```
+
+#### resetZoom()
+`resetZoom()`
+
+Example:
+```
+this.pdf.resetZoom();
 ```
