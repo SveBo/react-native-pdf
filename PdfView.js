@@ -110,7 +110,10 @@ export default class PdfView extends Component {
                         centerContent: numberOfPages > 1 ? false : true
                     });
                     if (this.props.onLoadComplete) {
-                        this.props.onLoadComplete(numberOfPages, this.props.path, { width, height });
+                        this.props.onLoadComplete(numberOfPages, this.props.path);
+                    }
+                    if(this.props.onPdfSizeChanged){
+                        this.props.onPdfSizeChanged(width, height)
                     }
                 }
 

@@ -313,8 +313,6 @@ using namespace facebook::react;
 
 - (void)resetZoom {
     float min = self->_pdfView.minScaleFactor/self->_fixScaleFactor;
-    float max = self->_pdfView.maxScaleFactor/self->_fixScaleFactor;
-    float mid = (max - min) / 2 + min;
     float scale = min;
 
     CGFloat newScale = scale * self->_fixScaleFactor;
@@ -334,47 +332,61 @@ using namespace facebook::react;
     tempZoomRect.size.height = 1;
     tempZoomRect.origin = tapPoint;
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [UIView animateWithDuration:0.3 animations:^{
-            [self->_pdfView setScaleFactor:newScale];
+    [self->_pdfView setScaleFactor:newScale];
 
-            [self->_pdfView goToRect:tempZoomRect onPage:pageRef];
-            CGPoint defZoomOrigin = [self->_pdfView convertPoint:tempZoomRect.origin fromPage:pageRef];
-            defZoomOrigin.x = defZoomOrigin.x - self->_pdfView.frame.size.width / 2;
-            defZoomOrigin.y = defZoomOrigin.y - self->_pdfView.frame.size.height / 2;
-            defZoomOrigin = [self->_pdfView convertPoint:defZoomOrigin toPage:pageRef];
-            CGRect defZoomRect =  CGRectOffset(
-                tempZoomRect,
-                defZoomOrigin.x - tempZoomRect.origin.x,
-                defZoomOrigin.y - tempZoomRect.origin.y
-            );
-            [self->_pdfView goToRect:defZoomRect onPage:pageRef];
+    [self->_pdfView goToRect:tempZoomRect onPage:pageRef];
+    CGPoint defZoomOrigin = [self->_pdfView convertPoint:tempZoomRect.origin fromPage:pageRef];
+    defZoomOrigin.x = defZoomOrigin.x - self->_pdfView.frame.size.width / 2;
+    defZoomOrigin.y = defZoomOrigin.y - self->_pdfView.frame.size.height / 2;
+    defZoomOrigin = [self->_pdfView convertPoint:defZoomOrigin toPage:pageRef];
+    CGRect defZoomRect =  CGRectOffset(
+        tempZoomRect,
+        defZoomOrigin.x - tempZoomRect.origin.x,
+        defZoomOrigin.y - tempZoomRect.origin.y
+    );
+    [self->_pdfView goToRect:defZoomRect onPage:pageRef];
 
-            [self setNeedsDisplay];
-            [self onScaleChanged:Nil];
-            [self loadCompelete];
-        }];
-    });
+    [self setNeedsDisplay];
+    [self onScaleChanged:Nil];
 }
 
 - (void)onOrientationChanged:(NSNotification *)noti
 {
     [self resetZoom];
+    [self pdfSizeChanged];
+}
+
+- (void)pdfSizeChanged {
+    __weak typeof(self) weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf && strongSelf->_pdfDocument) {
+            if(strongSelf->_pdfDocument){
+                PDFPage *page = [strongSelf->_pdfDocument pageAtIndex:strongSelf->_pdfDocument.pageCount - 1];
+                CGSize pageSize = [strongSelf->_pdfView rowSizeForPage:page];
+                NSString *computedSize = [NSString stringWithFormat:@"onPdfSizeChanged|%f|%f",
+                                 pageSize.width / strongSelf->_scale,
+                                 pageSize.height / strongSelf->_scale
+                ];
+
+                [self notifyOnChangeWithMessage:[[NSString alloc] initWithString:computedSize]];
+            }
+        }
+    });
+    
 }
 
 - (void)loadCompelete {
-    __weak typeof(self) weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (strongSelf && strongSelf->_pdfDocument) {
-            unsigned long numberOfPages = strongSelf->_pdfDocument.pageCount;
-            PDFPage *page = [strongSelf->_pdfDocument pageAtIndex:strongSelf->_pdfDocument.pageCount - 1];
-            CGSize pageSize = [strongSelf->_pdfView rowSizeForPage:page];
-            NSString *jsonString = [strongSelf getTableContents];
+    if(self->_pdfDocument){
+        unsigned long numberOfPages = self->_pdfDocument.pageCount;
+        PDFPage *page = [self->_pdfDocument pageAtIndex:self->_pdfDocument.pageCount - 1];
+        CGSize pageSize = [self->_pdfView rowSizeForPage:page];
+        NSString *jsonString = [self getTableContents];
 
-            [strongSelf notifyOnChangeWithMessage:[[NSString alloc] initWithString:[NSString stringWithFormat:@"loadComplete|%lu|%f|%f|%@", numberOfPages, pageSize.width / strongSelf->_scale, pageSize.height / strongSelf->_scale, jsonString]]];
-        }
-    });
+        [self notifyOnChangeWithMessage:[[NSString alloc] initWithString:[NSString stringWithFormat:@"loadComplete|%lu|%@", numberOfPages, jsonString]]];
+       
+        [self pdfSizeChanged];
+    }
 }
 
 - (void)PDFViewWillClickOnLink:(PDFView *)sender withURL:(NSURL *)url
@@ -781,6 +793,7 @@ using namespace facebook::react;
         if (_scale != _pdfView.scaleFactor/_fixScaleFactor) {
             _scale = _pdfView.scaleFactor/_fixScaleFactor;
             [self notifyOnChangeWithMessage:[[NSString alloc] initWithString:[NSString stringWithFormat:@"scaleChanged|%f", _scale]]];
+            [self pdfSizeChanged];
         }
     }
 }

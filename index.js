@@ -58,6 +58,7 @@ export default class Pdf extends Component {
         fitPolicy: PropTypes.number,
         trustAllCerts: PropTypes.bool,
         singlePage: PropTypes.bool,
+        onPdfSizeChanged: PropTypes.func,
         onLoadComplete: PropTypes.func,
         onPageChanged: PropTypes.func,
         onError: PropTypes.func,
@@ -95,6 +96,8 @@ export default class Pdf extends Component {
         usePDFKit: true,
         singlePage: false,
         onLoadProgress: (percent) => {
+        },
+        onPdfSizeChanged: (width, height) => {
         },
         onLoadComplete: (numberOfPages, path) => {
         },
@@ -396,11 +399,9 @@ export default class Pdf extends Component {
                 message[4] = message.splice(4).join('|');
             }
             if (message[0] === 'loadComplete') {
-                this.props.onLoadComplete && this.props.onLoadComplete(Number(message[1]), this.state.path, {
-                    width: Number(message[2]),
-                    height: Number(message[3]),
-                },
-                    message[4] && JSON.parse(message[4]));
+                this.props.onLoadComplete && this.props.onLoadComplete(Number(message[1]), this.state.path, message[2] && JSON.parse(message[2]));
+            } else if(message[0] === 'onPdfSizeChanged') {
+                this.props.onPdfSizeChanged && this.props.onPdfSizeChanged(Number(message[1]), Number(message[2]));
             } else if (message[0] === 'pageChanged') {
                 this.props.onPageChanged && this.props.onPageChanged(Number(message[1]), Number(message[2]));
             } else if (message[0] === 'error') {
@@ -457,6 +458,7 @@ export default class Pdf extends Component {
                                     {...this.props}
                                     style={[{ backgroundColor: '#EEE', overflow: 'hidden' }, this.props.style]}
                                     path={this.state.path}
+                                    onPdfSizeChanged={this.props.onPdfSizeChanged}
                                     onLoadComplete={this.props.onLoadComplete}
                                     onPageChanged={this.props.onPageChanged}
                                     onError={this._onError}
