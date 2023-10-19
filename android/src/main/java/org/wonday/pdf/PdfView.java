@@ -143,16 +143,12 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
     @Override
     public void loadComplete(int numberOfPages) {
-        SizeF pageSize = getPageSize(0);
-        float width = pageSize.getWidth();
-        float height = pageSize.getHeight();
-
         this.zoomTo(this.scale);
         WritableMap event = Arguments.createMap();
 
         //create a new json Object for the TableOfContents
         Gson gson = new Gson();
-        event.putString("message", "loadComplete|"+numberOfPages+"|"+width+"|"+height+"|"+gson.toJson(this.getTableOfContents()));
+        event.putString("message", "loadComplete|"+numberOfPages+"|"+gson.toJson(this.getTableOfContents()));
         ReactContext reactContext = (ReactContext)this.getContext();
         reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
             this.getId(),
@@ -160,8 +156,24 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             event
          );
 
+        pdfSizeChanged();
         //Log.e("ReactNative", gson.toJson(this.getTableOfContents()));
 
+    }
+
+    public void pdfSizeChanged() {
+        WritableMap event = Arguments.createMap();
+        SizeF pageSize = getPageSize(0);
+        float width = pageSize.getWidth();
+        float height = pageSize.getHeight();
+
+        event.putString("message", "onPdfSizeChanged|"+width+"|"+height);
+        ReactContext reactContext = (ReactContext)this.getContext();
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                this.getId(),
+                "topChange",
+                event
+        );
     }
 
     @Override
@@ -259,6 +271,8 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
                 "topChange",
                 event
              );
+
+            pdfSizeChanged();
         }
 
         lastPageWidth = pageWidth;
