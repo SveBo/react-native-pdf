@@ -12,6 +12,7 @@ import java.io.File;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 import android.view.ViewGroup;
 import android.util.Log;
@@ -139,6 +140,18 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
                 originalWidth = 0;
             }
         }
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        resetZoom();
+    }
+
+    public void resetZoom(){
+        this.zoomTo(this.scale);
+        pdfSizeChanged();
     }
 
     @Override
