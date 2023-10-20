@@ -47,10 +47,10 @@ RCT_EXPORT_VIEW_PROPERTY(password, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onChange, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(singlePage, BOOL);
 
-RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y)
+RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y scale:(float)scale)
 {
     if (_pdfViewInstance) {
-        [_pdfViewInstance moveToNative:x y:y];
+        [_pdfViewInstance moveToNative:x y:y scale:scale];
     } else {
         NSLog(@"RNPDFPdfView instance is not available.");
     }

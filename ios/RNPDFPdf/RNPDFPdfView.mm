@@ -291,7 +291,7 @@ using namespace facebook::react;
     }
 }
 
-- (void)moveToNative:(float)x y:(float)y
+- (void)moveToNative:(float)x y:(float)y scale:(float)scale;
 {
     __weak typeof(self) weakSelf = self;
 
@@ -303,6 +303,13 @@ using namespace facebook::react;
 
         for (UIView *subview in strongSelf->_pdfView.subviews) {
             if ([subview isKindOfClass:[UIScrollView class]]) {
+                CGFloat newScale = scale * self->_fixScaleFactor;
+
+                [self->_pdfView setScaleFactor:newScale];
+
+                [self setNeedsDisplay];
+                [self onScaleChanged:Nil];
+                
                 UIScrollView *scrollView = (UIScrollView *)subview;
                 CGPoint contentOffset = CGPointMake(x, y);
                 [scrollView setContentOffset:contentOffset animated:FALSE];

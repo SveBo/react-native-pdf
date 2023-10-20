@@ -152,12 +152,18 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
     }
 
     @Override
-    public void moveToNative(PdfView view, double x, double y) {
+    public void moveToNative(PdfView view, double x, double y, Double scale) {
         float xf = (float) x;
         float yf = (float) y;
-        pdfView.zoomTo(pdfView.getMinZoom());
+        float sf = (scale != null) ? scale.floatValue() : 1.0f;
+        pdfView.zoomToNative(sf);
         pdfView.moveTo(xf, yf);
         pdfView.loadPages();
+    }
+
+    @Override
+    public void resetZoom(PdfView view) {
+        pdfView.resetZoom();
     }
 
     @Override
@@ -171,7 +177,12 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
         else if ("moveToNative".equals(commandId)) {
             Assertions.assertNotNull(args);
             assert args != null;
-            moveToNative(root, args.getDouble(0), args.getDouble(1));
+            moveToNative(root, args.getDouble(0), args.getDouble(1), args.getDouble(2));
+        }
+        else if ("resetZoom".equals(commandId)) {
+            Assertions.assertNotNull(args);
+            assert args != null;
+            resetZoom(root);
         }
     }
 

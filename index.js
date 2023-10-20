@@ -376,17 +376,18 @@ export default class Pdf extends Component {
         }
     }
 
-    moveTo(x, y) {
+    moveTo(x, y, scale) {
         if (!!global?.nativeFabricUIManager || Platform.OS === 'android') {
             if (this._root) {
                 PdfViewCommands.moveToNative(
                     this._root,
                     x,
                     y,
+                    scale,
                 );
             }
         } else {
-            RNPDFPdfViewManager.moveToNative(x, y)
+            RNPDFPdfViewManager.moveToNative(x, y, scale)
         }
     }
 

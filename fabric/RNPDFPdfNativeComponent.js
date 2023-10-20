@@ -41,6 +41,7 @@
     viewRef: React.ElementRef<ComponentType>,
     x: Double,
     y: Double,
+    scale: Double,
   ) => void;
   +resetZoom: (
     viewRef: React.ElementRef<ComponentType>,

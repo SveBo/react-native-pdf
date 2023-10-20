@@ -18,7 +18,7 @@ A react native PDF view component (cross-platform support)
 - onPageSingleTap - function(page, x, y, isLongPress)
 
 #### Methods
-- moveTo - function(x, y)
+- moveTo - function(x, y, scale)
 - resetScroll - function()
 
 ### Supported versions
@@ -374,11 +374,11 @@ this.pdf.setPage(42); // Display the answer to the Ultimate Question of Life, th
 ```
 
 #### moveTo()
-`moveTo(x, y)`
+`moveTo(x, y, scale)`
 
 Example:
 ```
-this.pdf.moveTo(0, 0);
+this.pdf.moveTo(0, 0, 1);
 ```
 
 #### resetZoom()
