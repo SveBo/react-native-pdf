@@ -13,6 +13,7 @@ import java.io.File;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.util.Log;
@@ -268,6 +269,31 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         );
     }
 
+    private static final long SCALE_CHANGE_DELAY = 200;
+    private long lastScaleChangeTime = 0;
+    private Handler scaleChangeHandler = new Handler();
+
+    private Runnable scaleChangeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            handleScaleChange(getZoom());
+        }
+    };
+
+    private void handleScaleChange(float zoom) {
+        WritableMap event = Arguments.createMap();
+        event.putString("message", "scaleChanged|" + zoom);
+
+        ReactContext reactContext = (ReactContext) this.getContext();
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                this.getId(),
+                "topChange",
+                event
+        );
+
+        pdfSizeChanged();
+    }
+
     @Override
     public void onLayerDrawn(Canvas canvas, float pageWidth, float pageHeight, int displayedPage){
         if (originalWidth == 0) {
@@ -279,17 +305,16 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             Constants.Pinch.MINIMUM_ZOOM = this.minScale;
             Constants.Pinch.MAXIMUM_ZOOM = this.maxScale;
 
-            WritableMap event = Arguments.createMap();
-            event.putString("message", "scaleChanged|"+(getZoom()));
+            long currentTime = System.currentTimeMillis();
 
-            ReactContext reactContext = (ReactContext)this.getContext();
-            reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
-                this.getId(),
-                "topChange",
-                event
-             );
+            if (currentTime - lastScaleChangeTime >= SCALE_CHANGE_DELAY) {
+                handleScaleChange(getZoom());
+            } else {
+                scaleChangeHandler.removeCallbacks(scaleChangeRunnable);
+                scaleChangeHandler.postDelayed(scaleChangeRunnable, SCALE_CHANGE_DELAY);
+            }
 
-            pdfSizeChanged();
+            lastScaleChangeTime = currentTime;
         }
 
         lastPageWidth = pageWidth;
