@@ -319,42 +319,48 @@ using namespace facebook::react;
 }
 
 - (void)resetZoom {
-    float min = self->_pdfView.minScaleFactor/self->_fixScaleFactor;
-    float scale = min;
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf) {
+            float min = strongSelf->_pdfView.minScaleFactor / strongSelf->_fixScaleFactor;
+            float scale = min;
 
-    CGFloat newScale = scale * self->_fixScaleFactor;
-    CGPoint tapPoint = CGPointMake(0.0, 0.0);
+            CGFloat newScale = scale * strongSelf->_fixScaleFactor;
+            CGPoint tapPoint = CGPointMake(0.0, 0.0);
 
-    PDFPage *tappedPdfPage = [_pdfView pageForPoint:tapPoint nearest:NO];
-    PDFPage *pageRef;
-    if (tappedPdfPage) {
-        pageRef = tappedPdfPage;
-    }   else {
-        pageRef = self->_pdfView.currentPage;
-    }
-    tapPoint = [self->_pdfView convertPoint:tapPoint toPage:pageRef];
+            PDFPage *tappedPdfPage = [strongSelf->_pdfView pageForPoint:tapPoint nearest:NO];
+            PDFPage *pageRef;
+            if (tappedPdfPage) {
+                pageRef = tappedPdfPage;
+            }   else {
+                pageRef = strongSelf->_pdfView.currentPage;
+            }
+            tapPoint = [strongSelf->_pdfView convertPoint:tapPoint toPage:pageRef];
 
-    CGRect tempZoomRect = CGRectZero;
-    tempZoomRect.size.width = self->_pdfView.frame.size.width;
-    tempZoomRect.size.height = 1;
-    tempZoomRect.origin = tapPoint;
+            CGRect tempZoomRect = CGRectZero;
+            tempZoomRect.size.width = strongSelf->_pdfView.frame.size.width;
+            tempZoomRect.size.height = 1;
+            tempZoomRect.origin = tapPoint;
 
-    [self->_pdfView setScaleFactor:newScale];
+            [strongSelf->_pdfView setScaleFactor:newScale];
 
-    [self->_pdfView goToRect:tempZoomRect onPage:pageRef];
-    CGPoint defZoomOrigin = [self->_pdfView convertPoint:tempZoomRect.origin fromPage:pageRef];
-    defZoomOrigin.x = defZoomOrigin.x - self->_pdfView.frame.size.width / 2;
-    defZoomOrigin.y = defZoomOrigin.y - self->_pdfView.frame.size.height / 2;
-    defZoomOrigin = [self->_pdfView convertPoint:defZoomOrigin toPage:pageRef];
-    CGRect defZoomRect =  CGRectOffset(
-        tempZoomRect,
-        defZoomOrigin.x - tempZoomRect.origin.x,
-        defZoomOrigin.y - tempZoomRect.origin.y
-    );
-    [self->_pdfView goToRect:defZoomRect onPage:pageRef];
+            [strongSelf->_pdfView goToRect:tempZoomRect onPage:pageRef];
+            CGPoint defZoomOrigin = [strongSelf->_pdfView convertPoint:tempZoomRect.origin fromPage:pageRef];
+            defZoomOrigin.x = defZoomOrigin.x - strongSelf->_pdfView.frame.size.width / 2;
+            defZoomOrigin.y = defZoomOrigin.y - strongSelf->_pdfView.frame.size.height / 2;
+            defZoomOrigin = [strongSelf->_pdfView convertPoint:defZoomOrigin toPage:pageRef];
+            CGRect defZoomRect =  CGRectOffset(
+                tempZoomRect,
+                defZoomOrigin.x - tempZoomRect.origin.x,
+                defZoomOrigin.y - tempZoomRect.origin.y
+            );
+            [strongSelf->_pdfView goToRect:defZoomRect onPage:pageRef];
 
-    [self setNeedsDisplay];
-    [self onScaleChanged:Nil];
+            [strongSelf setNeedsDisplay];
+            [strongSelf onScaleChanged:nil];
+        }
+    });
 }
 
 - (void)onOrientationChanged:(NSNotification *)noti
