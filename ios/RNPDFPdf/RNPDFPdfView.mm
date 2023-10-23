@@ -393,7 +393,6 @@ using namespace facebook::react;
     if(self->_pdfDocument){
         unsigned long numberOfPages = self->_pdfDocument.pageCount;
         PDFPage *page = [self->_pdfDocument pageAtIndex:self->_pdfDocument.pageCount - 1];
-        CGSize pageSize = [self->_pdfView rowSizeForPage:page];
         NSString *jsonString = [self getTableContents];
 
         [self notifyOnChangeWithMessage:[[NSString alloc] initWithString:[NSString stringWithFormat:@"loadComplete|%lu|%@", numberOfPages, jsonString]]];
@@ -916,7 +915,6 @@ using namespace facebook::react;
         self.startPoint = [gestureRecognizer locationInView:self];
     } else if (gestureRecognizer.state == UIGestureRecognizerStateEnded) {
         CGPoint pressPoint = [gestureRecognizer locationInView:self];
-        CGFloat tolerance = 10.0;
         
         if (CGPointEqualToPoint(pressPoint, self.startPoint)) {
             PDFPage *pdfPage = [_pdfView pageForPoint:pressPoint nearest:NO];
