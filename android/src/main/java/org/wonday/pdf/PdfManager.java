@@ -104,6 +104,11 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
         // NOOP on Android
     }
 
+    @ReactProp(name = "scrollEnabled")
+    public void setScrollEnabled(PdfView view, boolean scrollEnabled) {
+        pdfView.setScrollEnabled(scrollEnabled);
+    }
+
     @ReactProp(name = "spacing")
     public void setSpacing(PdfView pdfView, int spacing) {
         pdfView.setSpacing(spacing);
@@ -122,6 +127,11 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
     @ReactProp(name = "enableAnnotationRendering")
     public void setEnableAnnotationRendering(PdfView pdfView, boolean enableAnnotationRendering) {
         pdfView.setEnableAnnotationRendering(enableAnnotationRendering);
+    }
+
+    @ReactProp(name = "enableDoubleTapZoom")
+    public void setEnableDoubleTapZoom(PdfView pdfView, boolean enableDoubleTap) {
+        pdfView.setEnableDoubleTapZoom(enableDoubleTap);
     }
 
     @ReactProp(name = "enablePaging")

@@ -21,9 +21,11 @@ public interface RNPDFPdfViewManagerInterface<T extends View> {
   void setHorizontal(T view, boolean value);
   void setShowsHorizontalScrollIndicator(T view, boolean value);
   void setShowsVerticalScrollIndicator(T view, boolean value);
+  void setScrollEnabled(T view, boolean value);
   void setEnablePaging(T view, boolean value);
   void setEnableRTL(T view, boolean value);
   void setEnableAnnotationRendering(T view, boolean value);
+  void setEnableDoubleTapZoom(T view, boolean value);
   void setEnableAntialiasing(T view, boolean value);
   void setFitPolicy(T view, int value);
   void setSpacing(T view, int value);

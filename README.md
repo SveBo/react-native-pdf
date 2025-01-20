@@ -94,7 +94,6 @@ react-native link react-native-pdf
 
 ### Windows installation
 <details>
-  <sumary>Windows details</summary>
 
 - Open your solution in Visual Studio 2019 (eg. `windows\yourapp.sln`)
 - Right-click Solution icon in Solution Explorer > Add > Existing Project...
@@ -177,6 +176,32 @@ react-native run-ios
 ### ChangeLog
 <details>
   <summary>ChangeLog details</summary>
+v6.7.6
+1. Fixed: Add missing 'enableDoubleTapZoom' to fabric codegen source (#832)
+2. Fixed: added missing 'scrollEnabled' prop (#842)
+3. Fixed: java.lang.IllegalStateException: Tried to access a JS module before the React instance was fully set up (#840)
+4. Fixed: an issue that crashes when cancel is not present (#852)
+5. Added: add load method (#861)
+6. Fixed: encoded accented character is decoded incorrectly (#873)
+7. Fixed: enableDoubleTapZoom bugfix
+
+
+v6.7.5
+1. Added progressContainerStyle prop
+2. Improved: Added enableDoubleTapZoom option
+3. Fixed: Fix app crash with this.lastRNBFTask.cancel is not a function (#827)
+4. Fixed: Remove override to fix 'no matching methods to override' error (#822)
+
+v6.7.4
+1. Fixed: fix Android crash issue
+
+v6.7.3
+1. Fixed: fix android package name
+
+v6.7.2
+1. Fixed: fix iOS double tap zoom scrolling
+2. Fixed: fix RN 73 compatibility
+3. Fixed: bump crypto-js to avoid critical vulnerability
 
 v6.7.1
 1. Fixed: fix ios project setting
@@ -289,6 +314,7 @@ const styles = StyleSheet.create({
 
 ### Configuration
 
+<<<<<<< HEAD
 | Property      | Type          | Default          | Description         | iOS   | Android | Windows | FirstRelease |
 | ------------- |:-------------:|:----------------:| ------------------- | ------| ------- | ------- | ------------ |
 | source        | object        | not null         | PDF source like {uri:xxx, cache:false}. see the following for detail.| ✔ | ✔ | ✔ | <3.0 |
@@ -320,6 +346,40 @@ const styles = StyleSheet.create({
 | onPageSingleTap   | function(page, x, y, isLongPress)  | null        | callback when page was single tapped | ✔ | ✔ | ✖ | custom |
 | onScaleChanged    | function(scale) | null        | callback when scale page | ✔ | ✔ | ✔ | 3.0 |
 | onPressLink       | function(uri)   | null        | callback when link tapped | ✔ | ✔ | ✖ | 6.0.0 |
+=======
+| Property                       |                             Type                              |         Default          | Description                                                                                                                                                                   | iOS | Android | Windows                     | FirstRelease             |
+| ------------------------------ | :-----------------------------------------------------------: | :----------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------- | --------------------------- | ------------------------ |
+| source                         |                            object                             |         not null         | PDF source like {uri:xxx, cache:false}. see the following for detail.                                                                                                         | ✔   | ✔       | ✔                           | <3.0                     |
+| page                           |                            number                             |            1             | initial page index                                                                                                                                                            | ✔   | ✔       | ✔                           | <3.0                     |
+| scale                          |                            number                             |           1.0            | should minScale<=scale<=maxScale                                                                                                                                              | ✔   | ✔       | ✔                           | <3.0                     |
+| minScale                       |                            number                             |           1.0            | min scale                                                                                                                                                                     | ✔   | ✔       | ✔                           | 5.0.5                    |
+| maxScale                       |                            number                             |           3.0            | max scale                                                                                                                                                                     | ✔   | ✔       | ✔                           | 5.0.5                    |
+| horizontal                     |                             bool                              |          false           | draw page direction, if you want to listen the orientation change, you can use [[react-native-orientation-locker]](https://github.com/wonday/react-native-orientation-locker) | ✔   | ✔       | ✔                           | <3.0                     |
+| showsHorizontalScrollIndicator |                             bool                              |           true           | shows or hides the horizontal scroll bar indicator on iOS                                                                                                                     | ✔   |         |                             | 6.6                      |
+| showsVerticalScrollIndicator   |                             bool                              |           true           | shows or hides the vertical scroll bar indicator on iOS                                                                                                                       | ✔   |         |                             | 6.6                      |
+| scrollEnabled   |                             bool                              |           true           | enable or disable scroll                                                                                                                       | ✔   |         |                             | 6.6                      |
+| fitWidth                       |                             bool                              |          false           | if true fit the width of view, can not use fitWidth=true together with scale                                                                                                  | ✔   | ✔       | ✔                           | <3.0, abandoned from 3.0 |
+| fitPolicy                      |                            number                             |            2             | 0:fit width, 1:fit height, 2:fit both(default)                                                                                                                                | ✔   | ✔       | ✔                           | 3.0                      |
+| spacing                        |                            number                             |            10            | the breaker size between pages                                                                                                                                                | ✔   | ✔       | ✔                           | <3.0                     |
+| password                       |                            string                             |            ""            | pdf password, if password error, will call OnError() with message "Password required or incorrect password."                                                                  | ✔   | ✔       | ✔                           | <3.0                     |
+| style                          |                            object                             | {backgroundColor:"#eee"} | support normal view style, you can use this to set border/spacing color...                                                                                                    | ✔   | ✔       | ✔                           | <3.0 
+| progressContainerStyle         |                            object                             | {backgroundColor:"#eee"} | support normal view style, you can use this to set border/spacing color...                                                                                             | ✔   | ✔       | ✔                           | 6.9.0                     |
+| renderActivityIndicator        |                    (progress) => Component                    |      <ProgressBar/>      | when loading show it as an indicator, you can use your component                                                                                                              | ✔   | ✔       | ✖                           | <3.0                     |
+| enableAntialiasing             |                             bool                              |           true           | improve rendering a little bit on low-res screens, but maybe course some problem on Android 4.4, so add a switch                                                              | ✖   | ✔       | ✖                           | <3.0                     |
+| enablePaging                   |                             bool                              |          false           | only show one page in screen                                                                                                                                                  | ✔   | ✔       | ✔                           | 5.0.1                    |
+| enableRTL                      |                             bool                              |          false           | scroll page as "page3, page2, page1"                                                                                                                                          | ✔   | ✖       | ✔                           | 5.0.1                    |
+| enableAnnotationRendering      |                             bool                              |           true           | enable rendering annotation, notice:iOS only support initial setting,not support realtime changing                                                                            | ✔   | ✔       | ✖                           | 5.0.3                    |
+| enableDoubleTapZoom            |                             bool                              |           true           | Enable double tap to zoom gesture                                                                                                                                             | ✔   | ✔       | ✖                           | 6.8.0                    |
+| trustAllCerts                  |                             bool                              |           true           | Allow connections to servers with self-signed certification                                                                                                                   | ✔   | ✔       | ✖                           | 6.0.?                    |
+| singlePage                     |                             bool                              |          false           | Only show first page, useful for thumbnail views                                                                                                                              | ✔   | ✔       | ✔                           | 6.2.1                    |
+| onLoadProgress                 |                       function(percent)                       |           null           | callback when loading, return loading progress (0-1)                                                                                                                          | ✔   | ✔       | ✖                           | <3.0                     |
+| onLoadComplete                 | function(numberOfPages, path, {width, height}, tableContents) |           null           | callback when pdf load completed, return total page count, pdf local/cache path, {width,height} and table of contents                                                         | ✔   | ✔       | ✔ but without tableContents | <3.0                     |
+| onPageChanged                  |                 function(page,numberOfPages)                  |           null           | callback when page changed ,return current page and total page count                                                                                                          | ✔   | ✔       | ✔                           | <3.0                     |
+| onError                        |                        function(error)                        |           null           | callback when error happened                                                                                                                                                  | ✔   | ✔       | ✔                           | <3.0                     |
+| onPageSingleTap                |                        function(page)                         |           null           | callback when page was single tapped                                                                                                                                          | ✔   | ✔       | ✔                           | 3.0                      |
+| onScaleChanged                 |                        function(scale)                        |           null           | callback when scale page                                                                                                                                                      | ✔   | ✔       | ✔                           | 3.0                      |
+| onPressLink                    |                         function(uri)                         |           null           | callback when link tapped                                                                                                                                                     | ✔   | ✔       | ✖                           | 6.0.0                    |
+>>>>>>> cca0e99c15913e790409a9b2634ae1b69c6f6e59
 
 #### parameters of source
 
@@ -371,6 +431,7 @@ Set the current page of the PDF component. pageNumber is a positive integer. If 
 Example:
 ```
 this.pdf.setPage(42); // Display the answer to the Ultimate Question of Life, the Universe, and Everything
+<<<<<<< HEAD
 ```
 
 #### moveTo()
@@ -387,4 +448,6 @@ this.pdf.moveTo(0, 0, 1);
 Example:
 ```
 this.pdf.resetZoom();
+=======
+>>>>>>> cca0e99c15913e790409a9b2634ae1b69c6f6e59
 ```

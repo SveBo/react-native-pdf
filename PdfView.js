@@ -51,6 +51,7 @@ export default class PdfView extends Component {
         maxScale: MAX_SCALE,
         spacing: 10,
         style: {},
+        progressContainerStyle: {},
         fitPolicy: 2,
         horizontal: false,
         centerContent: false,

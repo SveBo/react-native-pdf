@@ -53,6 +53,7 @@ export default class Pdf extends Component {
         enableAnnotationRendering: PropTypes.bool,
         showsHorizontalScrollIndicator: PropTypes.bool,
         showsVerticalScrollIndicator: PropTypes.bool,
+        scrollEnabled: PropTypes.bool,
         enablePaging: PropTypes.bool,
         enableRTL: PropTypes.bool,
         fitPolicy: PropTypes.number,
@@ -90,6 +91,7 @@ export default class Pdf extends Component {
         enableAnnotationRendering: true,
         showsHorizontalScrollIndicator: true,
         showsVerticalScrollIndicator: true,
+        scrollEnabled: true,
         enablePaging: false,
         enableRTL: false,
         trustAllCerts: true,
@@ -135,7 +137,7 @@ export default class Pdf extends Component {
 
         if ((nextSource.uri !== curSource.uri)) {
             // if has download task, then cancel it.
-            if (this.lastRNBFTask) {
+            if (this.lastRNBFTask && this.lastRNBFTask.cancel) {
                 this.lastRNBFTask.cancel(err => {
                     this._loadFromSource(this.props.source);
                 });
@@ -154,8 +156,8 @@ export default class Pdf extends Component {
     componentWillUnmount() {
         this._mounted = false;
         if (this.lastRNBFTask) {
-            this.lastRNBFTask.cancel(err => {
-            });
+            // this.lastRNBFTask.cancel(err => {
+            // });
             this.lastRNBFTask = null;
         }
 
@@ -240,8 +242,9 @@ export default class Pdf extends Component {
                         });
                 } else {
                     if (this._mounted) {
-                        this.setState({
-                            path: unescape(uri.replace(/file:\/\//i, '')),
+
+                       this.setState({
+                            path: decodeURIComponent(uri.replace(/file:\/\//i, '')),
                             isDownloaded: true,
                         });
                     }
@@ -284,6 +287,9 @@ export default class Pdf extends Component {
                 if (this._mounted) {
                     this.setState({ progress: received / total });
                 }
+            })
+            .catch(async (error) => {
+                this._onError(error);
             });
 
         this.lastRNBFTask
@@ -403,6 +409,18 @@ export default class Pdf extends Component {
                 this.props.onLoadComplete && this.props.onLoadComplete(Number(message[1]), this.state.path, message[2] && JSON.parse(message[2]));
             } else if(message[0] === 'onPdfSizeChanged') {
                 this.props.onPdfSizeChanged && this.props.onPdfSizeChanged(Number(message[1]), Number(message[2]));
+                let tableContents;
+                try {
+                    tableContents = message[4]&&JSON.parse(message[4]);
+                } catch(e) {
+                    tableContents = message[4];
+                }
+                this.props.onLoadComplete && this.props.onLoadComplete(Number(message[1]), this.state.path, {
+                    width: Number(message[2]),
+                    height: Number(message[3]),
+                },
+                tableContents
+                );
             } else if (message[0] === 'pageChanged') {
                 this.props.onPageChanged && this.props.onPageChanged(Number(message[1]), Number(message[2]));
             } else if (message[0] === 'error') {
@@ -428,49 +446,47 @@ export default class Pdf extends Component {
 
     render() {
         if (Platform.OS === "android" || Platform.OS === "ios" || Platform.OS === "windows") {
-            return (
-                <View style={[this.props.style, { overflow: 'hidden' }]}>
-                    {!this.state.isDownloaded ?
-                        (<View
-                            style={styles.progressContainer}
-                        >
-                            {this.props.renderActivityIndicator
-                                ? this.props.renderActivityIndicator(this.state.progress)
-                                : <Text>{`${(this.state.progress * 100).toFixed(2)}%`}</Text>}
-                        </View>) : (
-                            Platform.OS === "android" || Platform.OS === "windows" ? (
-                                <PdfCustom
-                                    ref={component => (this._root = component)}
-                                    {...this.props}
-                                    style={[{ flex: 1, backgroundColor: '#EEE' }, this.props.style]}
-                                    path={this.state.path}
-                                    onChange={this._onChange}
-                                />
-                            ) : (
-                                this.props.usePDFKit ? (
-                                    <PdfCustom
-                                        ref={component => (this._root = component)}
-                                        {...this.props}
-                                        style={[{ backgroundColor: '#EEE', overflow: 'hidden' }, this.props.style]}
-                                        path={this.state.path}
-                                        onChange={this._onChange}
-                                    />
-                                ) : (<PdfView
-                                    {...this.props}
-                                    style={[{ backgroundColor: '#EEE', overflow: 'hidden' }, this.props.style]}
-                                    path={this.state.path}
-                                    onPdfSizeChanged={this.props.onPdfSizeChanged}
-                                    onLoadComplete={this.props.onLoadComplete}
-                                    onPageChanged={this.props.onPageChanged}
-                                    onError={this._onError}
-                                    onPageSingleTap={this.props.onPageSingleTap}
-                                    onScroll={this.props.onScroll}
-                                    onScaleChanged={this.props.onScaleChanged}
-                                    onPressLink={this.props.onPressLink}
-                                />)
-                            )
-                        )}
-                </View>);
+                return (
+                    <View style={[this.props.style,{overflow: 'hidden'}]}>
+                        {!this.state.isDownloaded?
+                            (<View
+                                style={[styles.progressContainer, this.props.progressContainerStyle]}
+                            >
+                                {this.props.renderActivityIndicator
+                                    ? this.props.renderActivityIndicator(this.state.progress)
+                                    : <Text>{`${(this.state.progress * 100).toFixed(2)}%`}</Text>}
+                            </View>):(
+                                Platform.OS === "android" || Platform.OS === "windows"?(
+                                        <PdfCustom
+                                            ref={component => (this._root = component)}
+                                            {...this.props}
+                                            style={[{flex:1,backgroundColor: '#EEE'}, this.props.style]}
+                                            path={this.state.path}
+                                            onChange={this._onChange}
+                                        />
+                                    ):(
+                                        this.props.usePDFKit ?(
+                                                <PdfCustom
+                                                    ref={component => (this._root = component)}
+                                                    {...this.props}
+                                                    style={[{backgroundColor: '#EEE',overflow: 'hidden'}, this.props.style]}
+                                                    path={this.state.path}
+                                                    onChange={this._onChange}
+                                                />
+                                            ):(<PdfView
+                                                {...this.props}
+                                                style={[{backgroundColor: '#EEE',overflow: 'hidden'}, this.props.style]}
+                                                path={this.state.path}
+                                                onLoadComplete={this.props.onLoadComplete}
+                                                onPageChanged={this.props.onPageChanged}
+                                                onError={this._onError}
+                                                onPageSingleTap={this.props.onPageSingleTap}
+                                                onScaleChanged={this.props.onScaleChanged}
+                                                onPressLink={this.props.onPressLink}
+                                            />)
+                                    )
+                                )}
+                    </View>);
         } else {
             return (null);
         }
