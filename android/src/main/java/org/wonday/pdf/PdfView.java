@@ -12,12 +12,9 @@ import java.io.File;
 
 import android.content.ContentResolver;
 import android.content.Context;
-<<<<<<< HEAD
 import android.content.res.Configuration;
 import android.os.Handler;
-=======
 import android.util.SizeF;
->>>>>>> cca0e99c15913e790409a9b2634ae1b69c6f6e59
 import android.view.View;
 import android.view.ViewGroup;
 import android.util.Log;
@@ -63,12 +60,9 @@ import com.google.gson.Gson;
 
 import org.wonday.pdf.events.TopChangeEvent;
 
-<<<<<<< HEAD
 public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompleteListener,OnErrorListener,OnTapListener,OnLongPressListener,OnDrawListener,OnPageScrollListener, LinkHandler {
     private ThemedReactContext context;
-=======
-public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompleteListener,OnErrorListener,OnTapListener,OnDrawListener,OnPageScrollListener, LinkHandler {
->>>>>>> cca0e99c15913e790409a9b2634ae1b69c6f6e59
+
     private int page = 1;               // start from 1
     private boolean horizontal = false;
     private float scale = 1;
@@ -176,15 +170,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
         //create a new json Object for the TableOfContents
         Gson gson = new Gson();
-<<<<<<< HEAD
-        event.putString("message", "loadComplete|"+numberOfPages+"|"+gson.toJson(this.getTableOfContents()));
-        ReactContext reactContext = (ReactContext)this.getContext();
-        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
-            this.getId(),
-            "topChange",
-            event
-         );
-=======
+
         event.putString("message", "loadComplete|"+numberOfPages+"|"+width+"|"+height+"|"+gson.toJson(this.getTableOfContents()));
 
         ThemedReactContext context = (ThemedReactContext) getContext();
@@ -202,7 +188,6 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 //            "topChange",
 //            event
 //         );
->>>>>>> cca0e99c15913e790409a9b2634ae1b69c6f6e59
 
         pdfSizeChanged();
         //Log.e("ReactNative", gson.toJson(this.getTableOfContents()));
@@ -354,18 +339,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             Constants.Pinch.MINIMUM_ZOOM = this.minScale;
             Constants.Pinch.MAXIMUM_ZOOM = this.maxScale;
 
-<<<<<<< HEAD
-            long currentTime = System.currentTimeMillis();
 
-            if (currentTime - lastScaleChangeTime >= SCALE_CHANGE_DELAY) {
-                handleScaleChange(getZoom());
-            } else {
-                scaleChangeHandler.removeCallbacks(scaleChangeRunnable);
-                scaleChangeHandler.postDelayed(scaleChangeRunnable, SCALE_CHANGE_DELAY);
-            }
-
-            lastScaleChangeTime = currentTime;
-=======
             WritableMap event = Arguments.createMap();
             event.putString("message", "scaleChanged|"+(pageWidth/originalWidth));
             ThemedReactContext context = (ThemedReactContext) getContext();
@@ -383,7 +357,6 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 //                "topChange",
 //                event
 //             );
->>>>>>> cca0e99c15913e790409a9b2634ae1b69c6f6e59
         }
 
         lastPageWidth = pageWidth;
