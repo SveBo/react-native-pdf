@@ -170,24 +170,13 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
         //create a new json Object for the TableOfContents
         Gson gson = new Gson();
-
-        event.putString("message", "loadComplete|"+numberOfPages+"|"+width+"|"+height+"|"+gson.toJson(this.getTableOfContents()));
-
-        ThemedReactContext context = (ThemedReactContext) getContext();
-        EventDispatcher dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, getId());
-        int surfaceId = UIManagerHelper.getSurfaceId(this);
-
-        TopChangeEvent tce = new TopChangeEvent(surfaceId, getId(), event);
-
-        if (dispatcher != null) {
-            dispatcher.dispatchEvent(tce);
-        }
-        //        ReactContext reactContext = (ReactContext)this.getContext();
-//        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
-//            this.getId(),
-//            "topChange",
-//            event
-//         );
+        event.putString("message", "loadComplete|"+numberOfPages+"|"+gson.toJson(this.getTableOfContents()));
+        ReactContext reactContext = (ReactContext)this.getContext();
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+            this.getId(),
+            "topChange",
+            event
+         );
 
         pdfSizeChanged();
         //Log.e("ReactNative", gson.toJson(this.getTableOfContents()));
