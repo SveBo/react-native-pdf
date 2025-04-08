@@ -5,10 +5,10 @@
  * This source code is licensed under the MIT-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+ 
 #ifndef RNPDFPdfView_h
 #define RNPDFPdfView_h
-
+ 
 #if __has_include(<React/RCTAssert.h>)
 #import <React/RCTEventDispatcher.h>
 #import <React/UIView+React.h>
@@ -16,13 +16,13 @@
 #import "RCTEventDispatcher.h"
 #import "UIView+React.h"
 #endif
-
+ 
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <React/RCTViewComponentView.h>
 #endif
-
+ 
 @class RCTEventDispatcher;
-
+ 
 NS_CLASS_AVAILABLE_IOS(11_0) @interface RNPDFPdfView :
 #ifdef RCT_NEW_ARCH_ENABLED
 RCTViewComponentView
@@ -31,7 +31,7 @@ UIView
 #endif
 <UIGestureRecognizerDelegate>
 - (instancetype)initWithBridge:(RCTBridge *)bridge;
-
+ 
 @property(nonatomic, strong) NSString *path;
 @property(nonatomic) int page;
 @property(nonatomic) float scale;
@@ -49,14 +49,16 @@ UIView
 @property(nonatomic) int spacing;
 @property(nonatomic, strong) NSString *password;
 @property(nonatomic) BOOL singlePage;
-
+@property(nonatomic) float initialXOffset;
+@property(nonatomic) float initialYOffset;
+ 
 @property (nonatomic, assign) CGPoint startPoint;
-
+ 
 @property(nonatomic, copy) RCTBubblingEventBlock onChange;
-
+ 
 - (void)moveToNative:(float)x y:(float)y scale:(float)scale;
 - (void)resetZoom;
-
+ 
 @end
-
+ 
 #endif /* RNPDFPdfView_h */
