@@ -5,7 +5,7 @@
  * This source code is licensed under the MIT-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+ 
 'use strict';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
@@ -26,9 +26,9 @@ const SHA1 = require('crypto-js/sha1');
 import PdfView from './PdfView';
 import { NativeModules } from 'react-native';
 const { RNPDFPdfViewManager } = NativeModules;
-
+ 
 export default class Pdf extends Component {
-
+ 
     static propTypes = {
         ...ViewPropTypes,
         source: PropTypes.oneOfType([
@@ -67,7 +67,9 @@ export default class Pdf extends Component {
         onPageSingleTap: PropTypes.func,
         onScaleChanged: PropTypes.func,
         onPressLink: PropTypes.func,
-
+        initialXOffset: PropTypes.number,
+        initialYOffset: PropTypes.number,
+ 
         // Props that are not available in the earlier react native version, added to prevent crashed on android
         accessibilityLabel: PropTypes.string,
         importantForAccessibility: PropTypes.string,
@@ -77,7 +79,7 @@ export default class Pdf extends Component {
         accessibilityLiveRegion: PropTypes.string,
         accessibilityComponentType: PropTypes.string,
     };
-
+ 
     static defaultProps = {
         password: "",
         scale: 1,
@@ -116,25 +118,25 @@ export default class Pdf extends Component {
         onPressLink: (url) => {
         },
     };
-
+ 
     constructor(props) {
-
+ 
         super(props);
         this.state = {
             path: '',
             isDownloaded: false,
             progress: 0,
         };
-
+ 
         this.lastRNBFTask = null;
-
+ 
     }
-
+ 
     componentDidUpdate(prevProps) {
-
+ 
         const nextSource = Image.resolveAssetSource(this.props.source);
         const curSource = Image.resolveAssetSource(prevProps.source);
-
+ 
         if ((nextSource.uri !== curSource.uri)) {
             // if has download task, then cancel it.
             if (this.lastRNBFTask && this.lastRNBFTask.cancel) {
@@ -147,12 +149,12 @@ export default class Pdf extends Component {
             }
         }
     }
-
+ 
     componentDidMount() {
         this._mounted = true;
         this._loadFromSource(this.props.source);
     }
-
+ 
     componentWillUnmount() {
         this._mounted = false;
         if (this.lastRNBFTask) {
@@ -160,13 +162,13 @@ export default class Pdf extends Component {
             // });
             this.lastRNBFTask = null;
         }
-
+ 
     }
-
+ 
     _loadFromSource = (newSource) => {
-
+ 
         const source = Image.resolveAssetSource(newSource) || {};
-
+ 
         let uri = source.uri || '';
         // first set to initial state
         if (this._mounted) {
@@ -174,7 +176,7 @@ export default class Pdf extends Component {
         }
         const filename = source.cacheFileName || SHA1(uri) + '.pdf';
         const cacheFile = ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + filename;
-
+ 
         if (source.cache) {
             ReactNativeBlobUtil.fs
                 .stat(cacheFile)
@@ -191,28 +193,28 @@ export default class Pdf extends Component {
                 .catch(() => {
                     this._prepareFile(source);
                 })
-
+ 
         } else {
             this._prepareFile(source);
         }
     };
-
+ 
     _prepareFile = async (source) => {
-
+ 
         try {
             if (source.uri) {
                 let uri = source.uri || '';
-
+ 
                 const isNetwork = !!(uri && uri.match(/^https?:\/\//));
                 const isAsset = !!(uri && uri.match(/^bundle-assets:\/\//));
                 const isBase64 = !!(uri && uri.match(/^data:application\/pdf;base64/));
-
+ 
                 const filename = source.cacheFileName || SHA1(uri) + '.pdf';
                 const cacheFile = ReactNativeBlobUtil.fs.dirs.CacheDir + '/' + filename;
-
+ 
                 // delete old cache file
                 this._unlinkFile(cacheFile);
-
+ 
                 if (isNetwork) {
                     this._downloadFile(source, cacheFile);
                 } else if (isAsset) {
@@ -242,7 +244,7 @@ export default class Pdf extends Component {
                         });
                 } else {
                     if (this._mounted) {
-
+ 
                        this.setState({
                             path: decodeURIComponent(uri.replace(/file:\/\//i, '')),
                             isDownloaded: true,
@@ -255,21 +257,21 @@ export default class Pdf extends Component {
         } catch (e) {
             this._onError(e)
         }
-
-
+ 
+ 
     };
-
+ 
     _downloadFile = async (source, cacheFile) => {
-
+ 
         if (this.lastRNBFTask) {
             this.lastRNBFTask.cancel(err => {
             });
             this.lastRNBFTask = null;
         }
-
+ 
         const tempCacheFile = cacheFile + '.tmp';
         this._unlinkFile(tempCacheFile);
-
+ 
         this.lastRNBFTask = ReactNativeBlobUtil.config({
             // response data will be saved to this path if it has access right.
             path: tempCacheFile,
@@ -291,33 +293,33 @@ export default class Pdf extends Component {
             .catch(async (error) => {
                 this._onError(error);
             });
-
+ 
         this.lastRNBFTask
             .then(async (res) => {
-
+ 
                 this.lastRNBFTask = null;
-
+ 
                 if (res && res.respInfo && res.respInfo.headers && !res.respInfo.headers["Content-Encoding"] && !res.respInfo.headers["Transfer-Encoding"] && res.respInfo.headers["Content-Length"]) {
                     const expectedContentLength = res.respInfo.headers["Content-Length"];
                     let actualContentLength;
-
+ 
                     try {
                         const fileStats = await ReactNativeBlobUtil.fs.stat(res.path());
-
+ 
                         if (!fileStats || !fileStats.size) {
                             throw new Error("FileNotFound:" + source.uri);
                         }
-
+ 
                         actualContentLength = fileStats.size;
                     } catch (error) {
                         throw new Error("DownloadFailed:" + source.uri);
                     }
-
+ 
                     if (expectedContentLength != actualContentLength) {
                         throw new Error("DownloadFailed:" + source.uri);
                     }
                 }
-
+ 
                 this._unlinkFile(cacheFile);
                 ReactNativeBlobUtil.fs
                     .cp(tempCacheFile, cacheFile)
@@ -336,23 +338,23 @@ export default class Pdf extends Component {
                 this._unlinkFile(cacheFile);
                 this._onError(error);
             });
-
+ 
     };
-
+ 
     _unlinkFile = async (file) => {
         try {
             await ReactNativeBlobUtil.fs.unlink(file);
         } catch (e) {
-
+ 
         }
     }
-
+ 
     setNativeProps = nativeProps => {
         if (this._root) {
             this._root.setNativeProps(nativeProps);
         }
     };
-
+ 
     setPage(pageNumber) {
         if ((pageNumber === null) || (isNaN(pageNumber))) {
             throw new Error('Specified pageNumber is not a number');
@@ -369,9 +371,9 @@ export default class Pdf extends Component {
                 page: pageNumber
             });
         }
-
+ 
     }
-
+ 
     resetZoom() {
         if (!!global?.nativeFabricUIManager || Platform.OS === 'android') {
             if (this._root) {
@@ -381,7 +383,7 @@ export default class Pdf extends Component {
             RNPDFPdfViewManager.resetZoom()
         }
     }
-
+ 
     moveTo(x, y, scale) {
         if (!!global?.nativeFabricUIManager || Platform.OS === 'android') {
             if (this._root) {
@@ -396,9 +398,9 @@ export default class Pdf extends Component {
             RNPDFPdfViewManager.moveToNative(x, y, scale)
         }
     }
-
+ 
     _onChange = (event) => {
-
+ 
         let message = event.nativeEvent.message.split('|');
         //__DEV__ && console.log("onChange: " + message);
         if (message.length > 0) {
@@ -435,15 +437,15 @@ export default class Pdf extends Component {
                 this.props.onPressLink && this.props.onPressLink(message[1]);
             }
         }
-
+ 
     };
-
+ 
     _onError = (error) => {
-
+ 
         this.props.onError && this.props.onError(error);
-
+ 
     };
-
+ 
     render() {
         if (Platform.OS === "android" || Platform.OS === "ios" || Platform.OS === "windows") {
                 return (
@@ -490,11 +492,11 @@ export default class Pdf extends Component {
         } else {
             return (null);
         }
-
-
+ 
+ 
     }
 }
-
+ 
 if (Platform.OS === "android" || Platform.OS === "ios") {
     var PdfCustom = PdfViewNativeComponent;
 } else if (Platform.OS === "windows") {
@@ -502,7 +504,7 @@ if (Platform.OS === "android" || Platform.OS === "ios") {
         nativeOnly: { path: true, onChange: true },
     })
 }
-
+ 
 const styles = StyleSheet.create({
     progressContainer: {
         flex: 1,
@@ -514,3 +516,4 @@ const styles = StyleSheet.create({
         height: 2
     }
 });
+ 

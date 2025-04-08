@@ -5,17 +5,17 @@
  * This source code is licensed under the MIT-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+ 
 import * as React from 'react';
 import * as ReactNative from 'react-native';
-
+ 
 export type TableContent = {
     children: TableContent[],
     mNativePtr: number,
     pageIdx: number,
     title: string,
 };
-
+ 
 export type Source = {
     uri?: string;
     headers?: {
@@ -26,7 +26,7 @@ export type Source = {
     expiration?: number;
     method?: string;
 };
-
+ 
 export interface PdfProps {
     style?: ReactNative.StyleProp<ReactNative.ViewStyle>,
     progressContainerStyle?: ReactNative.StyleProp<ReactNative.ViewStyle>,
@@ -65,13 +65,15 @@ export interface PdfProps {
     onPageSingleTap?: (page: number, x: number, y: number, isLongPress: boolean) => void,
     onScaleChanged?: (scale: number) => void,
     onPressLink?: (url: string) => void,
+    initialXOffset?: number,
+    initialYOffset?: number,
 }
-
-
+ 
+ 
 declare class Pdf extends React.Component<PdfProps, any> {
     moveTo: (x: number, y: number, scale: number) => void;
     resetZoom: () => void;
     setPage: (pageNumber: number) => void;
 }
-
+ 
 export default Pdf;
