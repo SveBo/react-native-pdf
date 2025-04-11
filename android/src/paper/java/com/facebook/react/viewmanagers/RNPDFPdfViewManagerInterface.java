@@ -30,7 +30,10 @@ public interface RNPDFPdfViewManagerInterface<T extends View> {
   void setFitPolicy(T view, int value);
   void setSpacing(T view, int value);
   void setPassword(T view, @Nullable String value);
+
   void setSinglePage(T view, boolean value);
+  void setInitialXOffset(T view, float value);
+  void setInitialYOffset(T view, float value);
   void setNativePage(T view, int page);
   void moveToNative(T view, double x, double y, Double scale);
   void resetZoom(T view);

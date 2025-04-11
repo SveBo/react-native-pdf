@@ -76,6 +76,12 @@ public class RNPDFPdfViewManagerDelegate<T extends View, U extends BaseViewManag
       case "singlePage":
         mViewManager.setSinglePage(view, value == null ? false : (boolean) value);
         break;
+         case "initialXOffset":
+        mViewManager.setInitialXOffset(view, value == null ? 0 : ((Double) value).floatValue());
+        break;
+         case "initialYOffset":
+        mViewManager.setInitialYOffset(view, value == null ? 0 : ((Double) value).floatValue());
+        break;
       default:
         super.setProperty(view, propName, value);
     }
