@@ -48,6 +48,8 @@ RCT_EXPORT_VIEW_PROPERTY(spacing, int);
 RCT_EXPORT_VIEW_PROPERTY(password, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onChange, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(singlePage, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(initialXOffset, float);
+RCT_EXPORT_VIEW_PROPERTY(initialYOffset, float);
 
 RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y scale:(float)scale)
 {
