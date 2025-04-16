@@ -31,7 +31,9 @@
    spacing: ?Int32,
    password: ?string,
    onChange: ?BubblingEventHandler<ChangeEvent>,
-   singlePage: ?boolean,
+  singlePage: ?boolean,
+  initialXOffset: ?Float,
+   initialYOffset: ?Float,
  |}>;
 
  interface NativeCommands {

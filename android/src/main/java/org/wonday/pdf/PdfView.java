@@ -87,6 +87,9 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     private float lastPageWidth = 0;
     private float lastPageHeight = 0;
 
+    private float initialXOffset = 0;
+    private float initialYOffset = -2400;
+
     // used to store the parameters for `super.onSizeChanged`
     private int oldW = 0;
     private int oldH = 0;
@@ -100,7 +103,6 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         // pdf lib page start from 0, convert it to our page (start from 1)
         page = page+1;
         this.page = page;
-        showLog(format("%s %s / %s", path, page, numberOfPages));
 
         WritableMap event = Arguments.createMap();
         event.putString("message", "pageChanged|"+page+"|"+numberOfPages);
@@ -151,7 +153,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        resetZoom();
+       // resetZoom();
     }
 
     public void zoomToNative(float scale){
@@ -330,7 +332,8 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
 
             WritableMap event = Arguments.createMap();
-            event.putString("message", "scaleChanged|"+(pageWidth/originalWidth));
+            // (originalWidth/scale) to get the original width of the page 
+            event.putString("message", "scaleChanged|"+(pageWidth*this.scale/originalWidth));
             ThemedReactContext context = (ThemedReactContext) getContext();
             EventDispatcher dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, getId());
             int surfaceId = UIManagerHelper.getSurfaceId(this);
@@ -360,16 +363,18 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     }
 
     public void drawPdf() {
-        showLog(format("drawPdf path:%s %s", this.path, this.page));
 
-        if (this.path != null){
+        if (this.path != null) {
 
+            this.enableRenderDuringScale(true);
             // set scale
             this.setMinZoom(this.minScale);
             this.setMaxZoom(this.maxScale);
-            this.setMidZoom((this.maxScale+this.minScale)/2);
+            this.setMidZoom((this.maxScale + this.minScale) / 2);
+            this.zoomTo(this.scale);
             Constants.Pinch.MINIMUM_ZOOM = this.minScale;
             Constants.Pinch.MAXIMUM_ZOOM = this.maxScale;
+            
 
             Configurator configurator;
 
@@ -390,10 +395,18 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             configurator.defaultPage(this.page-1)
                 .swipeHorizontal(this.horizontal)
                 .onPageChange(this)
-                .onLoad(this)
+                    .onLoad(this)
                 .onError(this)
                 .onDraw(this)
-                .onPageScroll(this)
+                    .onPageScroll(this)
+                    .onRender(pages -> {
+                        float xf = (float) PdfView.this.initialXOffset;
+                        float yf = (float)  PdfView.this.initialYOffset;
+                        PdfView.this.moveTo(PdfView.this.initialXOffset, PdfView.this.initialYOffset);
+                        PdfView.this.loadPages();
+        
+            
+            })
                 .spacing(this.spacing)
                 .password(this.password)
                 .enableAntialiasing(this.enableAntialiasing)
@@ -404,7 +417,8 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
                 .enableSwipe(!this.singlePage && this.scrollEnabled)
                 .enableDoubletap(!this.singlePage && this.enableDoubleTapZoom)
                 .enableAnnotationRendering(this.enableAnnotationRendering)
-                .linkHandler(this);
+                    .linkHandler(this);
+                
 
             if (this.singlePage) {
                 configurator.pages(this.page-1);
@@ -502,6 +516,15 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         this.singlePage = singlePage;
     }
 
+    
+    public void setInitialXOffset(float initialXOffset) {
+        this.initialXOffset = initialXOffset;
+    }
+
+   public void setInitialYOffset(float initialYOffset) {
+        this.initialYOffset = initialYOffset;
+    }
+
     /**
      * @see https://github.com/barteksc/AndroidPdfViewer/blob/master/android-pdf-viewer/src/main/java/com/github/barteksc/pdfviewer/link/DefaultLinkHandler.java
      */
@@ -547,9 +570,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         this.jumpTo(page);
     }
 
-    private void showLog(final String str) {
-        Log.d("PdfView", str);
-    }
+ 
 
     private Uri getURI(final String uri) {
         Uri parsed = Uri.parse(uri);

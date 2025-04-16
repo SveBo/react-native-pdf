@@ -54,7 +54,7 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
 
     @Override
     public PdfView createViewInstance(ThemedReactContext context) {
-        this.pdfView = new PdfView(context,null);
+        this.pdfView = new PdfView(context, null);
         return pdfView;
     }
 
@@ -152,6 +152,17 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
     @ReactProp(name = "singlePage")
     public void setSinglePage(PdfView pdfView, boolean singlePage) {
         pdfView.setSinglePage(singlePage);
+    }
+
+    @ReactProp(name = "initialXOffset")
+    public void setInitialXOffset(PdfView pdfView, float initialXOffset) {
+          pdfView.setInitialXOffset(initialXOffset);
+          
+      }
+    
+    @ReactProp(name = "initialYOffset")
+    public void setInitialYOffset(PdfView pdfView, float initialYOffset) {
+        pdfView.setInitialYOffset(initialYOffset);
     }
 
     // It seems funny, but this method is called through delegate on Paper, but on Fabric we need to

@@ -5,19 +5,19 @@
  * This source code is licensed under the MIT-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
- 
+
 #import <Foundation/Foundation.h>
- 
+
 #import "RNPDFPdfViewManager.h"
 #import "RNPDFPdfView.h"
- 
- 
+
+
 @implementation RNPDFPdfViewManager {
     RNPDFPdfView *_pdfViewInstance;
 }
- 
+
 RCT_EXPORT_MODULE()
- 
+
 - (UIView *)view
 {
     if([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] == NSOrderedDescending
@@ -27,9 +27,9 @@ RCT_EXPORT_MODULE()
     } else {
         return NULL;
     }
- 
+  
 }
- 
+
 RCT_EXPORT_VIEW_PROPERTY(path, NSString);
 RCT_EXPORT_VIEW_PROPERTY(page, int);
 RCT_EXPORT_VIEW_PROPERTY(scale, float);
@@ -50,7 +50,7 @@ RCT_EXPORT_VIEW_PROPERTY(onChange, RCTBubblingEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(singlePage, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(initialXOffset, float);
 RCT_EXPORT_VIEW_PROPERTY(initialYOffset, float);
- 
+
 RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y scale:(float)scale)
 {
     if (_pdfViewInstance) {
@@ -59,7 +59,7 @@ RCT_EXPORT_METHOD(moveToNative:(float)x y:(float)y scale:(float)scale)
         NSLog(@"RNPDFPdfView instance is not available.");
     }
 }
- 
+
 RCT_EXPORT_METHOD(resetZoom)
 {
     if (_pdfViewInstance) {
@@ -68,7 +68,7 @@ RCT_EXPORT_METHOD(resetZoom)
         NSLog(@"RNPDFPdfView instance is not available.");
     }
 }
- 
+
 RCT_EXPORT_METHOD(supportPDFKit:(RCTResponseSenderBlock)callback)
 {
     if([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] == NSOrderedDescending
@@ -77,15 +77,15 @@ RCT_EXPORT_METHOD(supportPDFKit:(RCTResponseSenderBlock)callback)
     } else {
         callback(@[@NO]);
     }
- 
+    
 }
- 
+
 + (BOOL)requiresMainQueueSetup {
     return YES;
 }
- 
- 
+
+
 - (void)dealloc{
 }
- 
+
 @end
