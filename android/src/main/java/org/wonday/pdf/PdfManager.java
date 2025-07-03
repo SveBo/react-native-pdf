@@ -173,13 +173,13 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
     }
 
     @Override
-    public void moveToNative(PdfView view, double x, double y, Double scale) {
+    public void moveToNative(PdfView view, double x, double y, double zoom) {
         float xf = (float) x;
         float yf = (float) y;
-        float sf = (scale != null) ? scale.floatValue() : 1.0f;
-        pdfView.zoomToNative(sf);
-        pdfView.moveTo(xf, yf);
-        pdfView.loadPages();
+        float zf = (float) zoom;
+        view.zoomToNative(zf);
+        view.moveTo(xf, yf);
+        view.loadPages();
     }
 
     @Override
