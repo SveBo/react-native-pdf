@@ -308,12 +308,21 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     private void handleScaleChange(float zoom) {
         WritableMap event = Arguments.createMap();
         event.putString("message", "scaleChanged|" + zoom);
+       
 
         ReactContext reactContext = (ReactContext) this.getContext();
         reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
                 this.getId(),
                 "topChange",
                 event
+        );
+
+        WritableMap scrollEvent = Arguments.createMap();
+        scrollEvent.putString("message", "onScroll|" + getCurrentXOffset() + "|" + getCurrentYOffset());
+        reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
+                this.getId(),
+                "topChange",
+                scrollEvent
         );
 
         pdfSizeChanged();
@@ -334,6 +343,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             WritableMap event = Arguments.createMap();
             // (originalWidth/scale) to get the original width of the page 
             event.putString("message", "scaleChanged|"+(pageWidth*this.scale/originalWidth));
+
             ThemedReactContext context = (ThemedReactContext) getContext();
             EventDispatcher dispatcher = UIManagerHelper.getEventDispatcherForReactTag(context, getId());
             int surfaceId = UIManagerHelper.getSurfaceId(this);
@@ -343,12 +353,22 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             if (dispatcher != null) {
                 dispatcher.dispatchEvent(tce);
             }
-//            ReactContext reactContext = (ReactContext)this.getContext();
-//            reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(
-//                this.getId(),
-//                "topChange",
-//                event
-//             );
+
+            // Send scroll event after a short delay to ensure it captures the latest offsets
+            final EventDispatcher finalDispatcher = dispatcher;
+            final int finalSurfaceId = surfaceId;
+            final int finalViewId = getId();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    WritableMap scrollEvent = Arguments.createMap();
+                    scrollEvent.putString("message", "onScroll|" + getCurrentXOffset() + "|" + getCurrentYOffset());
+                    TopChangeEvent scrollTce = new TopChangeEvent(finalSurfaceId, finalViewId, scrollEvent);
+                    if (finalDispatcher != null) {
+                        finalDispatcher.dispatchEvent(scrollTce);
+                    }
+                }
+            }, 16); // 16ms = ca. 1 Frame
         }
 
         lastPageWidth = pageWidth;
