@@ -319,37 +319,38 @@ using namespace facebook::react;
     }
 }
  
-- (void)moveToNative:(float)x y:(float)y scale:(float)scale;
+- (void)moveToNative:(float)x y:(float)y scale:(float)scale
 {
-    __weak typeof(self) weakSelf = self;
- 
+    __weak __typeof(self) weakSelf = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        typeof(self) strongSelf = weakSelf;
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) {
             return;
         }
  
         for (UIView *subview in strongSelf->_pdfView.subviews) {
             if ([subview isKindOfClass:[UIScrollView class]]) {
-                CGFloat newScale = scale * self->_fixScaleFactor;
- 
-                [self->_pdfView setScaleFactor:newScale];
- 
-                [self setNeedsDisplay];
-                [self onScaleChanged:Nil];
+                CGFloat newScale = scale * strongSelf->_fixScaleFactor;
+                [strongSelf->_pdfView setScaleFactor:newScale];
+                [strongSelf setNeedsDisplay];
+                [strongSelf onScaleChanged:nil];
  
                 UIScrollView *scrollView = (UIScrollView *)subview;
                 CGPoint contentOffset = CGPointMake(x, y);
-                [scrollView setContentOffset:contentOffset animated:FALSE];
+                [scrollView setContentOffset:contentOffset animated:NO];
             }
         }
     });
 }
+
  
 - (void)resetZoom {
-    __weak typeof(self) weakSelf = self;
+    
+    __weak __typeof(self) weakSelf = self;
+    
     dispatch_async(dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf) {
             float min = strongSelf->_pdfView.minScaleFactor / strongSelf->_fixScaleFactor;
             float scale = min;
@@ -398,9 +399,9 @@ using namespace facebook::react;
 }
  
 - (void)pdfSizeChanged {
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf && strongSelf->_pdfDocument) {
             if(strongSelf->_pdfDocument){
                 PDFPage *page = [strongSelf->_pdfDocument pageAtIndex:strongSelf->_pdfDocument.pageCount - 1];
