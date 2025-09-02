@@ -35,6 +35,6 @@ public interface RNPDFPdfViewManagerInterface<T extends View> {
   void setInitialXOffset(T view, float value);
   void setInitialYOffset(T view, float value);
   void setNativePage(T view, int page);
-  void moveToNative(T view, double x, double y, Double scale);
+  void moveToNative(T view, double x, double y, double scale);
   void resetZoom(T view);
 }
