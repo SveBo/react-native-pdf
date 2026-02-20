@@ -1,6 +1,6 @@
 {
     "name": "react-native-pdf",
-    "version": "6.7.6",
+    "version": "7.0.3",
     "summary": "A react native PDF view component",
     "description": "A react native PDF view component, support ios and android platform",
     "main": "index.js",
@@ -62,7 +62,12 @@
         "type": "components",
         "jsSrcsDir": "./fabric",
         "android": {
-          "javaPackageName": "org.wonday.pdf"
+            "javaPackageName": "org.wonday.pdf"
+        },
+        "ios": {
+            "componentProvider": {
+                "RNPDFPdfView": "RNPDFPdfView"
+            }
         }
-      }
+    }
 }

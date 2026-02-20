@@ -9,11 +9,14 @@
 package org.wonday.pdf;
 
 import java.io.File;
+import java.io.IOException;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.util.SizeF;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +25,7 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.graphics.Canvas;
-
+import android.graphics.pdf.PdfRenderer;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
@@ -82,6 +85,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     private FitPolicy fitPolicy = FitPolicy.WIDTH;
     private boolean singlePage = false;
     private boolean scrollEnabled = true;
+    private boolean enableRTL = false;
 
     private float originalWidth = 0;
     private float lastPageWidth = 0;
@@ -114,7 +118,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         TopChangeEvent tce = new TopChangeEvent(surfaceId, getId(), event);
 
         if (dispatcher != null) {
-            dispatcher.dispatchEvent(tce);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> dispatcher.dispatchEvent(tce), 10);
         }
 
 //        ReactContext reactContext = (ReactContext)this.getContext();
@@ -333,7 +337,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         if (originalWidth == 0) {
             originalWidth = pageWidth;
         }
-        
+
         if (lastPageWidth>0 && lastPageHeight>0 && (pageWidth!=lastPageWidth || pageHeight!=lastPageHeight)) {
             // maybe change by other instance, restore zoom setting
             Constants.Pinch.MINIMUM_ZOOM = this.minScale;
@@ -380,6 +384,16 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
         super.onAttachedToWindow();
         if (this.isRecycled())
             this.drawPdf();
+    }
+
+    private int getPdfPageCount(File pdfFile) throws IOException {
+        ParcelFileDescriptor fileDescriptor =
+                ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
+        PdfRenderer renderer = new PdfRenderer(fileDescriptor);
+        int pageCount = renderer.getPageCount();
+        renderer.close();
+        fileDescriptor.close();
+        return pageCount;
     }
 
     public void drawPdf() {
@@ -437,8 +451,24 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
                 .enableSwipe(!this.singlePage && this.scrollEnabled)
                 .enableDoubletap(!this.singlePage && this.enableDoubleTapZoom)
                 .enableAnnotationRendering(this.enableAnnotationRendering)
-                    .linkHandler(this);
-                
+                .linkHandler(this)
+            ;
+
+            if (enableRTL) {
+                try {
+                    int pageCount = getPdfPageCount(new File(this.path));
+                    int[] reversedPages = new int[pageCount];
+                    for (int i=0; i<pageCount; i++) {
+                        reversedPages[i] = pageCount-1 - i;
+                    }
+                    configurator.pages(reversedPages);
+                    if(this.page != 1){
+                        this.page = pageCount;
+                    }
+                } catch (IOException e) {
+                    Log.e("error", "error while reading PDF", e);
+                }
+            }
 
             if (this.singlePage) {
                 configurator.pages(this.page-1);
@@ -462,7 +492,12 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
 
     // page start from 1
     public void setPage(int page) {
-        this.page = page>1?page:1;
+        this.page = Math.max(page, 1);
+        this.handlePage(this.page - 1);
+    }
+
+    public void setEnableRTL(boolean enableRTL) {
+        this.enableRTL = enableRTL;
     }
 
     public void setScale(float scale) {

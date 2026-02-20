@@ -41,6 +41,8 @@ export default class PdfView extends Component {
         onScroll: PropTypes.func,
         onPageSingleTap: PropTypes.func,
         onScaleChanged: PropTypes.func,
+        showsHorizontalScrollIndicator: PropTypes.bool,
+        showsVerticalScrollIndicator: PropTypes.bool,
     };
 
     static defaultProps = {
@@ -65,6 +67,8 @@ export default class PdfView extends Component {
         },
         onScaleChanged: (scale) => {
         },
+        showsHorizontalScrollIndicator: true,
+        showsVerticalScrollIndicator: true,
     };
 
     constructor(props) {

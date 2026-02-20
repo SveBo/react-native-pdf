@@ -68,12 +68,14 @@ export interface PdfProps {
     initialXOffset?: number,
     initialYOffset?: number,
 }
- 
- 
-declare class Pdf extends React.Component<PdfProps, any> {
+
+export interface PdfRef {
     moveTo: (x: number, y: number, scale: number) => void;
     resetZoom: () => void;
-    setPage: (pageNumber: number) => void;
+    setPage(pageNumber: number): void
 }
- 
+
+declare const Pdf: React.ForwardRefExoticComponent<PdfProps & React.RefAttributes<PdfRef>>
+
 export default Pdf;
+
